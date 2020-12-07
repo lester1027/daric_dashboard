@@ -1,1 +1,1 @@
-web: gunicorn ticker_dashboard_v3_deployed:server
+web: gunicorn dashboard:server
