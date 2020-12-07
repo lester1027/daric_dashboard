@@ -424,7 +424,7 @@ app.layout = html.Div([
             type='number',
             min=0,
             step=1,
-            value=40
+            value=20
         )
     ], style={'display':'inline-block'}),
 
