@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from calculate import calculate_intrinsic_value
 import requests
 
@@ -30,6 +31,7 @@ class Stock:
         self.debt_premium = 1.3
         # the number to indicate a financial figure that cannot be acquired successfully
         self.epsilon = 9999999999
+        self.error_flag = False
 
     # a private function to construct the URLs with the input symbol
     def _get_f_url(self, url, format=False):
@@ -77,7 +79,8 @@ class Stock:
             'balance_quarter', format=True)
 
         # source of figure 14
-        self.url_gdp_growth_rate = self._get_f_url('gdp_growth_rate', format=False)
+        self.url_gdp_growth_rate = self._get_f_url(
+            'gdp_growth_rate', format=False)
 
     def update_price(self):
         # price history
@@ -110,36 +113,46 @@ class Stock:
                 self.ttm_FCF = np.array(self.response_cashflow.loc[0, 'freeCashFlow']).astype(
                     np.float)+self.quarters_added-self.quarters_dropped
 
-        except:
+        except Exception as e:
+            print('ttm_FCF: ',e)
             self.ttm_FCF = self.epsilon
+            self.error_flag = True
 
         # Figure 2: Total number of shares outstanding
         try:
             self.shares_outstanding = float(requests.request(
-                'GET', self.url_company_quote).json()[0]["shares_outstanding"])
-        except:
+                'GET', self.url_company_quote).json()[0]["sharesOutstanding"])
+        except Exception as e:
+            print('shares_outstanding: ',e)
             self.shares_outstanding = self.epsilon
+            self.error_flag = True
 
-            # Figure 3: Long term growth rate
+        # Figure 3: Long term growth rate
         try:
             self.long_term_growth_rate = float(requests.request(
                 'GET', self.url_financial_growth).json()[0]["dividendsperShareGrowth"])
-        except:
+        except Exception as e:
+            print('long_term_growth_rate: ',e)
             self.long_term_growth_rate = self.epsilon
+            self.error_flag = True
 
         # Figure 4: Current share price
         try:
             self.current_share_price = float(requests.request(
                 'GET', self.url_profile).json()[0]['price'])
-        except:
+        except Exception as e:
+            print('current_share_price: ',e)
             self.current_share_price = self.epsilon
+            self.error_flag = True
 
         # Figure 5: Stock beta
         try:
             self.stock_beta = float(requests.request(
                 'GET', self.url_profile).json()[0]['beta'])
-        except:
+        except Exception as e:
+            print('stock_beta: ',e)
             self.stock_beta = self.epsilon
+            self.error_flag = True
 
         # Figure 6: Risk free rate
         # 10-year government's bond
@@ -147,8 +160,10 @@ class Stock:
             self.response_risk_free = pd.read_html(self.url_gov_bonds)[0]
             self.risk_free_rate = float(
                 self.response_risk_free[self.response_risk_free['Country'] == 'United States']['10Y Yield'].values[0].strip('%'))/100
-        except:
+        except Exception as e:
+            print('risk_free_rate: ',e)
             self.risk_free_rate = self.epsilon
+            self.error_flag = True
 
         # Figure 7: Market risk premium
         try:
@@ -156,60 +171,74 @@ class Stock:
                 self.url_risk_premium, header=0)[0]
             self.risk_premium = float(
                 self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
-        except:
+        except Exception as e:
+            print('risk_premium: ',e)
             self.risk_premium = self.epsilon
+            self.error_flag = True
 
         # Figure 8: Business tax rate
         try:
             self.tax_rate = float(requests.request(
                 'GET', self.url_financial_ratios).json()[0]['effectiveTaxRate'])
-        except:
+        except Exception as e:
+            print('tax_rate: ',e)
             self.tax_rate = self.epsilon
+            self.error_flag = True
 
         # Figure 9: Estimated long-term interest rate
         try:
             self.interest_expense = float(requests.request(
-                'GET', self.url_income).json()[0]['interest_expense'])
+                'GET', self.url_income).json()[0]['interestExpense'])
 
             self.long_term_debt = float(requests.request(
-                'GET', self.url_balance).json()[0]['long_term_debt'])
+                'GET', self.url_balance).json()[0]['longTermDebt'])
 
             self.long_term_int_rate = self.interest_expense/self.long_term_debt
-        except:
+        except Exception as e:
+            print('long_term_int_rate: ',e)
             self.long_term_int_rate = self.epsilon
+            self.error_flag = True
 
         # Figure 10: Market value of equity
         try:
             self.market_cap = float(requests.request(
                 'GET', self.url_profile).json()[0]['mktCap'])
-        except:
+        except Exception as e:
+            print('market_cap: ',e)
             self.market_cap = self.epsilon
+            #self.error_flag = True
 
         # Figure 11: Market value of debt
         # use the most recent quarter
         try:
             self.total_debt = float(requests.request(
-                'GET', self.url_balance_quarter).json()[0]['total_debt'])
+                'GET', self.url_balance_quarter).json()[0]['totalDebt'])
 
             self.mv_debt = (self.total_debt)*self.debt_premium
-        except:
+        except Exception as e:
+            print('mv_debt: ',e)
             self.mv_debt = self.epsilon
+            self.error_flag = True
 
         # Figure 12: Total liabilities
         # use the most recent quarter
         try:
             self.total_liab = float(requests.request(
-                'GET', self.url_balance_quarter).json()[0]["total_liabilities"])
-        except:
+                'GET', self.url_balance_quarter).json()[0]["totalLiabilities"])
+        except Exception as e:
+            print('total_liab: ',e)
             self.total_liab = self.epsilon
+            self.error_flag = True
 
         # Figure 13: Total cash and cash equivalents
         # use the most recent quarter
         try:
             self.cce = float(requests.request('GET', self.url_balance_quarter).json()[
                              0]["cashAndCashEquivalents"])
-        except:
+        except Exception as e:
+            print('cce: ',e)
             self.cce = self.epsilon
+            self.error_flag = True
 
         # Figure 14: GDP growth rate
         # the real GDP growth rate from 2013 to 2018
@@ -218,8 +247,10 @@ class Stock:
                 self.url_gdp_growth_rate)[1]
             self.gdp_growth_rate = float(
                 self.response_gdp_growth_rate[self.response_gdp_growth_rate['Country'] == 'United States']['Average GDP growthrate (%) 2013–2018'].values)/100
-        except:
+        except Exception as e:
+            print('gdp_growth_rate: ',e)
             self.gdp_growth_rate = self.epsilon
+            self.error_flag = True
 
         # calculate the intrinsic value
         self.pv_discounted_FCF, self.terminal_value, self.wacc, self.intrinsic_value_per_share = calculate_intrinsic_value(
@@ -241,11 +272,15 @@ class Stock:
         self.intrinsic_value_per_share_safe = self.intrinsic_value_per_share * \
             (1-self.safety_margin/100)
 
+        # check if there is any error in the aquisition of financial figures first
+        if self.error_flag == True:
+            self.comp = 'Error'
         # determine if the stock is over-valued or under-valued
-        if self.current_share_price <= self.intrinsic_value_per_share_safe:
-            self.comp = 'under'
-        else:
-            self.comp = 'over'
+        elif self.current_share_price <= self.intrinsic_value_per_share_safe:
+            self.comp = 'Under'
+        elif self.current_share_price >= self.intrinsic_value_per_share_safe:
+            self.comp = 'Over'
+
 
         self.df_figures = pd.DataFrame(
             data={'Symbol': [self.symbol],

@@ -367,8 +367,9 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
      State('safety_margin', 'value'),
      State('table', 'data')])
 def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ticker, start_date, end_date, margin, rows):
+    # if the last change is 'analysis button is clicked' 
+    # instead of'the cells in the table are changed' or 'a new row is added'
     if analysis_timestamp >= data_timestamp and analysis_timestamp >= add_row_timestamp:
-        # if the last change is 'analysis button is clicked' instead of 'the cells in the table are changed' or 'a new row is added',
         # the finanical figures are acquired and the intrinsic values are processed
         figure_rows = pd.DataFrame()
         for tic in stock_ticker:
@@ -378,8 +379,9 @@ def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ti
             figure_rows = figure_rows.append(equity.df_figures)
         return figure_rows.to_dict('records')
 
+    # if the last change is 'the cells in the table are changed'
+    # instead of'analysis button is clicked' or 'a new row is added'
     elif data_timestamp > analysis_timestamp and data_timestamp > add_row_timestamp:
-        # if the last change is 'the cells in the table are changed' instead of 'analysis button is clicked' or 'a new row is added',
         # the intrinsic values are calculated again with the same pipeline
         for row in rows:
 
@@ -404,12 +406,13 @@ def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ti
                 (1-margin/100)
             # determine if the stock is over-valued or under-valued
             if float(row['4_Current_Share_Price']) <= float(row['Intrinsic_Value_per_Share_with_Safety_Margin']):
-                row['Comparison'] = 'under'
-            else:
-                row['Comparison'] = 'over'
-
+                row['Comparison'] = 'Under'
+            elif float(row['4_Current_Share_Price']) >= float(row['Intrinsic_Value_per_Share_with_Safety_Margin']):
+                row['Comparison'] = 'Over'
         return rows
 
+    # if the last change is 'a new row is added'
+    # instead of'analysis button is clicked' or 'the cells in the table are changed'
     elif add_row_timestamp > analysis_timestamp and add_row_timestamp > data_timestamp:
         rows.append({'Symbol': '',
                      'Comparison': '',
