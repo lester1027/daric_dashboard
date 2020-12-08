@@ -52,8 +52,8 @@ foo=Stock('AAPL','2000-10-27','2010-10-27',margin=40)
 foo.update_source()
 foo.update_price()
 foo.update_data()
-(foo.pvDiscountedFCF)/foo.sharesOutstanding
-foo.intrinsicValuePerShare
+(foo.pv_discounted_FCF)/foo.shares_outstanding
+foo.intrinsic_value_per_share
 '''
 
 
@@ -347,7 +347,7 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
         equity.update_source()
         equity.update_price()
         traces.append(
-            {'x': equity.selectedPriceHistory['date'], 'y': equity.selectedPriceHistory['close'], 'name': tic})
+            {'x': equity.selected_price_history['date'], 'y': equity.selected_price_history['close'], 'name': tic})
 
     fig = {
         'data': traces,
