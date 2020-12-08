@@ -69,9 +69,11 @@ nyse = pd.read_csv('data/NYSEcompanylist.csv')
 nyse['Country'] = 'United States'
 
 '''
-#HK stock
-hkstock = pd.read_csv('data/HKSecuritieslist.csv',converters={'Stock Code': lambda x: str(x)})
-hkstock.rename(columns={'Stock Code':'Symbol',"Name of Securities":"Name"},inplace=True)
+# HK stock
+hkstock = pd.read_csv('data/HKSecuritieslist.csv',
+                      converters={'Stock Code': lambda x: str(x)})
+hkstock.rename(columns={'Stock Code':'Symbol',
+               "Name of Securities":"Name"},inplace=True)
 hkstock['Symbol']=hkstock['Symbol']+'.HK'
 hkstock['Country']='Hong Kong'
 '''
@@ -229,6 +231,7 @@ app.layout = html.Div([
                     "deletable": True,
                     "selectable": True,
                     'type': 'numeric',
+                    'format': Format(precision=5)
                 },
                 {
                     'name': '7_Market_Risk_Premium',
@@ -308,10 +311,41 @@ app.layout = html.Div([
                 {
                     'if': {'row_index': 'odd'},
                     'backgroundColor': 'rgb(248, 248, 248)'
+                },
+
+
+                {
+                    'if': {'column_id': 'Intrinsic_Value_per_Share_with_Safety_Margin'},
+                    'backgroundColor': '#0074D9',
+                    'color': 'white'
+                },
+                {
+                    'if': {'column_id': '4_Current_Share_Price'},
+                    'backgroundColor': '#0074D9',
+                    'color': 'white'
+                },
+
+                {
+                    'if': {'filter_query': '{Comparison}="Error"'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                },
+
+                {
+                    'if': {'column_id': 'Comparison','filter_query': '{Comparison}="Under"'},
+                    'backgroundColor': 'limegreen',
+                    'color': 'white'
+                },
+                
+                {
+                    'if': {'column_id': 'Comparison','filter_query': '{Comparison}="Over"'},
+                    'backgroundColor': 'darksalmon',
+                    'color': 'white'
                 }
+
             ],
             style_table={'overflowX': 'auto'}
-            #style_header={'backgroundColor': 'rgb(30, 30, 30)'},
+            # style_header={'backgroundColor': 'rgb(30, 30, 30)'},
             # style_cell={
             #    'backgroundColor': 'rgb(50, 50, 50)',
             #    'color': 'white'
@@ -332,7 +366,7 @@ app.layout = html.Div([
 
 
 # callback functions
-@app.callback(
+@ app.callback(
     Output('my_graph', 'figure'),
     [Input('price-button', 'n_clicks')],
     [State('my_ticker_symbol', 'value'),
@@ -343,7 +377,7 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
     # when the 'price-button' is clicked, display the close price data in the graph
     traces = []
     for tic in stock_ticker:
-        equity = Stock(tic, start_date[:10], end_date[:10], margin)
+        equity = Stock(tic, start_date[: 10], end_date[: 10], margin)
         equity.update_source()
         equity.update_price()
         traces.append(
@@ -356,7 +390,7 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
     return fig
 
 
-@app.callback(
+@ app.callback(
     Output('table', 'data'),
     [Input('analysis-button', 'n_clicks_timestamp'),
      Input('table', 'data_timestamp'),
@@ -369,13 +403,13 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
 def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ticker, start_date, end_date, margin, rows):
     epsilon = 9999999999
 
-    # if the last change is 'analysis button is clicked' 
+    # if the last change is 'analysis button is clicked'
     # instead of'the cells in the table are changed' or 'a new row is added'
     if analysis_timestamp >= data_timestamp and analysis_timestamp >= add_row_timestamp:
         # the finanical figures are acquired and the intrinsic values are processed
         figure_rows = pd.DataFrame()
         for tic in stock_ticker:
-            equity = Stock(tic, start_date[:10], end_date[:10], margin)
+            equity = Stock(tic, start_date[: 10], end_date[: 10], margin)
             equity.update_source()
             equity.update_data()
             figure_rows = figure_rows.append(equity.df_figures)
