@@ -6,28 +6,28 @@ import requests
 class Stock:
     API_KEY = 'df55e203f4c76c061a598aaf16ea454d'
     # a class variable to store all the URLs to be used
-    URL_DICT = {'priceHistory': 'https://financialmodelingprep.com/api/v3/historical-price-full/{}?serietype=line&apikey={}',
-                'cashflowQuarter': 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{}?period=quarter&apikey={}',
+    URL_DICT = {'price_history': 'https://financialmodelingprep.com/api/v3/historical-price-full/{}?serietype=line&apikey={}',
+                'cashflow_quarter': 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{}?period=quarter&apikey={}',
                 'cashflow': 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{}?apikey={}',
 
-                'companyQuote': 'https://financialmodelingprep.com/api/v3/quote/{}?apikey={}',
+                'company_quote': 'https://financialmodelingprep.com/api/v3/quote/{}?apikey={}',
 
-                'financialGrowth': 'https://financialmodelingprep.com/api/v3/financial-growth/{}?apikey={}',
+                'financial_growth': 'https://financialmodelingprep.com/api/v3/financial-growth/{}?apikey={}',
                 'profile': 'https://financialmodelingprep.com/api/v3/profile/{}?apikey={}',
-                'govBonds': 'http://www.worldgovernmentbonds.com',
-                'riskPremium': 'http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html',
-                'financialRatios': 'https://financialmodelingprep.com/api/v3/ratios/{}?apikey={}',
+                'gov_bonds': 'http://www.worldgovernmentbonds.com',
+                'risk_premium': 'http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html',
+                'financial_ratios': 'https://financialmodelingprep.com/api/v3/ratios/{}?apikey={}',
                 'income': 'https://financialmodelingprep.com/api/v3/income-statement/{}?apikey={}',
                 'balance': 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{}?apikey={}',
-                'balanceQuarter': 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{}?period=quarter&apikey={}',
-                'gdpGrowthRate': 'https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate'}
+                'balance_quarter': 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{}?period=quarter&apikey={}',
+                'gdp_growth_rate': 'https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate'}
 
-    def __init__(self, symbol, startDate, endDate, margin):
+    def __init__(self, symbol, start_date, end_date, margin):
         self.symbol = symbol
-        self.startDate = startDate
-        self.endDate = endDate
-        self.safetyMargin = margin
-        self.debtPremium = 1.3
+        self.start_date = start_date
+        self.end_date = end_date
+        self.safety_margin = margin
+        self.debt_premium = 1.3
         # the number to indicate a financial figure that cannot be acquired successfully
         self.epsilon = 9999999999
 
@@ -39,174 +39,174 @@ class Stock:
             return Stock.URL_DICT[url]
 
     def update_source(self):
-        # source of priceHistory
-        self.url_priceHistory = self._get_f_url('priceHistory', format=True)
+        # source of price_history
+        self.url_price_history = self._get_f_url('price_history', format=True)
 
         # source of figures 1
-        self.url_cashflowQuarter = self._get_f_url(
-            'cashflowQuarter', format=True)
+        self.url_cashflow_quarter = self._get_f_url(
+            'cashflow_quarter', format=True)
 
         self.url_cashflow = self._get_f_url('cashflow', format=True)
 
         # source of figures 2
-        self.url_companyQuote = self._get_f_url('companyQuote', format=True)
+        self.url_company_quote = self._get_f_url('company_quote', format=True)
 
         # source of figure 3
-        self.url_financialGrowth = self._get_f_url(
-            'financialGrowth', format=True)
+        self.url_financial_growth = self._get_f_url(
+            'financial_growth', format=True)
 
         # source of figures 4,5,10
         self.url_profile = self._get_f_url('profile', format=True)
 
         # source of figure 6
-        self.url_govBonds = self._get_f_url('govBonds', format=False)
+        self.url_gov_bonds = self._get_f_url('gov_bonds', format=False)
 
         # source of figure 7
-        self.url_riskPremium = self._get_f_url('riskPremium', format=False)
+        self.url_risk_premium = self._get_f_url('risk_premium', format=False)
 
         # source of figure 8
-        self.url_financialRatios = self._get_f_url(
-            'financialRatios', format=True)
+        self.url_financial_ratios = self._get_f_url(
+            'financial_ratios', format=True)
 
         # source of figure 9
         self.url_income = self._get_f_url('income', format=True)
         self.url_balance = self._get_f_url('balance', format=True)
 
         # source of figure 11,12,13
-        self.url_balanceQuarter = self._get_f_url(
-            'balanceQuarter', format=True)
+        self.url_balance_quarter = self._get_f_url(
+            'balance_quarter', format=True)
 
         # source of figure 14
-        self.url_gdpGrowthRate = self._get_f_url('gdpGrowthRate', format=False)
+        self.url_gdp_growth_rate = self._get_f_url('gdp_growth_rate', format=False)
 
     def update_price(self):
         # price history
-        self.response_priceHistory = requests.request(
-            "GET", self.url_priceHistory).json()['historical']
-        self.priceHistory = pd.DataFrame(self.response_priceHistory)
-        self.selectedPriceHistory = self.priceHistory[(
-            self.priceHistory['date'] > self.startDate) & (self.priceHistory['date'] < self.endDate)]
+        self.response_price_history = requests.request(
+            "GET", self.url_price_history).json()['historical']
+        self.price_history = pd.DataFrame(self.response_price_history)
+        self.selected_price_history = self.price_history[(
+            self.price_history['date'] > self.start_date) & (self.price_history['date'] < self.end_date)]
 
     def update_data(self):
         # figure 1: TTM FCF
         try:
-            self.response_cashflowQuarter = pd.DataFrame(requests.request(
-                'GET', self.url_cashflowQuarter).json(), dtype=float)
+            self.response_cashflow_quarter = pd.DataFrame(requests.request(
+                'GET', self.url_cashflow_quarter).json(), dtype=float)
             self.response_cashflow = pd.DataFrame(requests.request(
                 'GET', self.url_cashflow).json(), dtype=float)
 
             # if the most recent annual cashflow statement is the mose recent cashflow statement
-            if self.response_cashflow.loc[0, 'date'] == self.response_cashflowQuarter.loc[0, 'date']:
-                self.ttmFCF = self.response_cashflow.loc[0, 'freeCashFlow']
+            if self.response_cashflow.loc[0, 'date'] == self.response_cashflow_quarter.loc[0, 'date']:
+                self.ttm_FCF = self.response_cashflow.loc[0, 'freeCashFlow']
             # if there are quarterly cashflow statements released after the latest annual cashflow statement
             else:
                 # use the free cash flow in the most recent annual cashflow statement and add all those from more recently quarterly cashflow statement then minus those from corrseponding quarterly cashflow from the previous year
-                self.offset = self.response_cashflowQuarter.index[self.response_cashflowQuarter['date'] == self.response_cashflow.loc[0, 'date']].tolist()[
+                self.offset = self.response_cashflow_quarter.index[self.response_cashflow_quarter['date'] == self.response_cashflow.loc[0, 'date']].tolist()[
                     0]
                 self.quarters_added = np.array(
-                    self.response_cashflowQuarter.loc[0:self.offset-1, 'freeCashFlow']).astype(np.float).sum()
+                    self.response_cashflow_quarter.loc[0:self.offset-1, 'freeCashFlow']).astype(np.float).sum()
                 self.quarters_dropped = np.array(
-                    self.response_cashflowQuarter.loc[4:self.offset+4-1, 'freeCashFlow']).astype(np.float).sum()
-                self.ttmFCF = np.array(self.response_cashflow.loc[0, 'freeCashFlow']).astype(
+                    self.response_cashflow_quarter.loc[4:self.offset+4-1, 'freeCashFlow']).astype(np.float).sum()
+                self.ttm_FCF = np.array(self.response_cashflow.loc[0, 'freeCashFlow']).astype(
                     np.float)+self.quarters_added-self.quarters_dropped
 
         except:
-            self.ttmFCF = self.epsilon
+            self.ttm_FCF = self.epsilon
 
         # Figure 2: Total number of shares outstanding
         try:
-            self.sharesOutstanding = float(requests.request(
-                'GET', self.url_companyQuote).json()[0]["sharesOutstanding"])
+            self.shares_outstanding = float(requests.request(
+                'GET', self.url_company_quote).json()[0]["shares_outstanding"])
         except:
-            self.sharesOutstanding = self.epsilon
+            self.shares_outstanding = self.epsilon
 
             # Figure 3: Long term growth rate
         try:
-            self.longTermGrowthRate = float(requests.request(
-                'GET', self.url_financialGrowth).json()[0]["dividendsperShareGrowth"])
+            self.long_term_growth_rate = float(requests.request(
+                'GET', self.url_financial_growth).json()[0]["dividendsperShareGrowth"])
         except:
-            self.longTermGrowthRate = self.epsilon
+            self.long_term_growth_rate = self.epsilon
 
         # Figure 4: Current share price
         try:
-            self.currentSharePrice = float(requests.request(
+            self.current_share_price = float(requests.request(
                 'GET', self.url_profile).json()[0]['price'])
         except:
-            self.currentSharePrice = self.epsilon
+            self.current_share_price = self.epsilon
 
         # Figure 5: Stock beta
         try:
-            self.stockBeta = float(requests.request(
+            self.stock_beta = float(requests.request(
                 'GET', self.url_profile).json()[0]['beta'])
         except:
-            self.stockBeta = self.epsilon
+            self.stock_beta = self.epsilon
 
         # Figure 6: Risk free rate
         # 10-year government's bond
         try:
-            self.response_risk_free = pd.read_html(self.url_govBonds)[0]
-            self.riskFreeRate = float(
+            self.response_risk_free = pd.read_html(self.url_gov_bonds)[0]
+            self.risk_free_rate = float(
                 self.response_risk_free[self.response_risk_free['Country'] == 'United States']['10Y Yield'].values[0].strip('%'))/100
         except:
-            self.riskFreeRate = self.epsilon
+            self.risk_free_rate = self.epsilon
 
         # Figure 7: Market risk premium
         try:
-            self.response_riskPremium = pd.read_html(
-                self.url_riskPremium, header=0)[0]
-            self.riskPremium = float(
-                self.response_riskPremium.loc[self.response_riskPremium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
+            self.response_risk_premium = pd.read_html(
+                self.url_risk_premium, header=0)[0]
+            self.risk_premium = float(
+                self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
         except:
-            self.riskPremium = self.epsilon
+            self.risk_premium = self.epsilon
 
         # Figure 8: Business tax rate
         try:
-            self.taxRate = float(requests.request(
-                'GET', self.url_financialRatios).json()[0]['effectiveTaxRate'])
+            self.tax_rate = float(requests.request(
+                'GET', self.url_financial_ratios).json()[0]['effectiveTaxRate'])
         except:
-            self.taxRate = self.epsilon
+            self.tax_rate = self.epsilon
 
         # Figure 9: Estimated long-term interest rate
         try:
-            self.interestExpense = float(requests.request(
-                'GET', self.url_income).json()[0]['interestExpense'])
+            self.interest_expense = float(requests.request(
+                'GET', self.url_income).json()[0]['interest_expense'])
 
-            self.longTermDebt = float(requests.request(
-                'GET', self.url_balance).json()[0]['longTermDebt'])
+            self.long_term_debt = float(requests.request(
+                'GET', self.url_balance).json()[0]['long_term_debt'])
 
-            self.longTermIntRate = self.interestExpense/self.longTermDebt
+            self.long_term_int_rate = self.interest_expense/self.long_term_debt
         except:
-            self.longTermIntRate = self.epsilon
+            self.long_term_int_rate = self.epsilon
 
         # Figure 10: Market value of equity
         try:
-            self.marketCap = float(requests.request(
+            self.market_cap = float(requests.request(
                 'GET', self.url_profile).json()[0]['mktCap'])
         except:
-            self.marketCap = self.epsilon
+            self.market_cap = self.epsilon
 
         # Figure 11: Market value of debt
         # use the most recent quarter
         try:
-            self.totalDebt = float(requests.request(
-                'GET', self.url_balanceQuarter).json()[0]['totalDebt'])
+            self.total_debt = float(requests.request(
+                'GET', self.url_balance_quarter).json()[0]['total_debt'])
 
-            self.mvDebt = (self.totalDebt)*self.debtPremium
+            self.mv_debt = (self.total_debt)*self.debt_premium
         except:
-            self.mvDebt = self.epsilon
+            self.mv_debt = self.epsilon
 
         # Figure 12: Total liabilities
         # use the most recent quarter
         try:
-            self.totalLiab = float(requests.request(
-                'GET', self.url_balanceQuarter).json()[0]["totalLiabilities"])
+            self.total_liab = float(requests.request(
+                'GET', self.url_balance_quarter).json()[0]["total_liabilities"])
         except:
-            self.totalLiab = self.epsilon
+            self.total_liab = self.epsilon
 
         # Figure 13: Total cash and cash equivalents
         # use the most recent quarter
         try:
-            self.cce = float(requests.request('GET', self.url_balanceQuarter).json()[
+            self.cce = float(requests.request('GET', self.url_balance_quarter).json()[
                              0]["cashAndCashEquivalents"])
         except:
             self.cce = self.epsilon
@@ -214,35 +214,35 @@ class Stock:
         # Figure 14: GDP growth rate
         # the real GDP growth rate from 2013 to 2018
         try:
-            self.response_gdpGrowthRate = pd.read_html(
-                self.url_gdpGrowthRate)[1]
-            self.gdpGrowthRate = float(
-                self.response_gdpGrowthRate[self.response_gdpGrowthRate['Country'] == 'United States']['Average GDP growthrate (%) 2013–2018'].values)/100
+            self.response_gdp_growth_rate = pd.read_html(
+                self.url_gdp_growth_rate)[1]
+            self.gdp_growth_rate = float(
+                self.response_gdp_growth_rate[self.response_gdp_growth_rate['Country'] == 'United States']['Average GDP growthrate (%) 2013–2018'].values)/100
         except:
-            self.gdpGrowthRate = self.epsilon
+            self.gdp_growth_rate = self.epsilon
 
         # calculate the intrinsic value
-        self.pvDiscountedFCF, self.terminalValue, self.wacc, self.intrinsicValuePerShare = calculate_intrinsic_value(
-            self.ttmFCF,
-            self.sharesOutstanding,
-            self.longTermGrowthRate,
-            self.currentSharePrice,
-            self.stockBeta,
-            self.riskFreeRate,
-            self.riskPremium,
-            self.taxRate,
-            self.longTermIntRate,
-            self.marketCap,
-            self.mvDebt,
-            self.totalLiab,
+        self.pv_discounted_FCF, self.terminal_value, self.wacc, self.intrinsic_value_per_share = calculate_intrinsic_value(
+            self.ttm_FCF,
+            self.shares_outstanding,
+            self.long_term_growth_rate,
+            self.current_share_price,
+            self.stock_beta,
+            self.risk_free_rate,
+            self.risk_premium,
+            self.tax_rate,
+            self.long_term_int_rate,
+            self.market_cap,
+            self.mv_debt,
+            self.total_liab,
             self.cce,
-            self.gdpGrowthRate)
+            self.gdp_growth_rate)
 
-        self.intrinsicValuePerShareSafe = self.intrinsicValuePerShare * \
-            (1-self.safetyMargin/100)
+        self.intrinsic_value_per_share_safe = self.intrinsic_value_per_share * \
+            (1-self.safety_margin/100)
 
         # determine if the stock is over-valued or under-valued
-        if self.currentSharePrice <= self.intrinsicValuePerShareSafe:
+        if self.current_share_price <= self.intrinsic_value_per_share_safe:
             self.comp = 'under'
         else:
             self.comp = 'over'
@@ -250,21 +250,21 @@ class Stock:
         self.df_figures = pd.DataFrame(
             data={'Symbol': [self.symbol],
                   'Comparison': [self.comp],
-                  'Intrinsic_Value_per_Share': [self.intrinsicValuePerShare],
-                  'Intrinsic_Value_per_Share_with_Safety_Margin': [self.intrinsicValuePerShareSafe],
-                  '1_TTM_Free_Cash_Flow': [self.ttmFCF],
-                  '2_Shares_Outstanding': [self.sharesOutstanding],
-                  '3_Long_Term_Growth_Rate': [self.longTermGrowthRate],
-                  '4_Current_Share_Price': [self.currentSharePrice],
-                  '5_Stock_Beta': [self.stockBeta],
-                  '6_Risk_Free_Rate': [self.riskFreeRate],
-                  '7_Market_Risk_Premium': [self.riskPremium],
-                  '8_Business_Tax_Rate': [self.taxRate],
-                  '9_Estimate_Interest_Rate': [self.longTermIntRate],
-                  '10_Market_Value_of_Equity': [self.marketCap],
-                  '11_Market_Value_of_Debt': [self.mvDebt],
-                  '12_Total_Liabilities': [self.totalLiab],
+                  'Intrinsic_Value_per_Share': [self.intrinsic_value_per_share],
+                  'Intrinsic_Value_per_Share_with_Safety_Margin': [self.intrinsic_value_per_share_safe],
+                  '1_TTM_Free_Cash_Flow': [self.ttm_FCF],
+                  '2_Shares_Outstanding': [self.shares_outstanding],
+                  '3_Long_Term_Growth_Rate': [self.long_term_growth_rate],
+                  '4_Current_Share_Price': [self.current_share_price],
+                  '5_Stock_Beta': [self.stock_beta],
+                  '6_Risk_Free_Rate': [self.risk_free_rate],
+                  '7_Market_Risk_Premium': [self.risk_premium],
+                  '8_Business_Tax_Rate': [self.tax_rate],
+                  '9_Estimate_Interest_Rate': [self.long_term_int_rate],
+                  '10_Market_Value_of_Equity': [self.market_cap],
+                  '11_Market_Value_of_Debt': [self.mv_debt],
+                  '12_Total_Liabilities': [self.total_liab],
                   '13_Cash_&_Cash_Equivalents': [self.cce],
-                  '14_GDP_Growth_Rate': [self.gdpGrowthRate]})
+                  '14_GDP_Growth_Rate': [self.gdp_growth_rate]})
 
         return self
