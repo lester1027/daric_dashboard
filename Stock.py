@@ -114,7 +114,7 @@ class Stock:
                     np.float)+self.quarters_added-self.quarters_dropped
 
         except Exception as e:
-            print('ttm_FCF: ',e)
+            print('[ERROR] ttm_FCF: ',e)
             self.ttm_FCF = self.epsilon
             self.error_flag = True
 
@@ -123,7 +123,7 @@ class Stock:
             self.shares_outstanding = float(requests.request(
                 'GET', self.url_company_quote).json()[0]["sharesOutstanding"])
         except Exception as e:
-            print('shares_outstanding: ',e)
+            print('[ERROR] shares_outstanding: ',e)
             self.shares_outstanding = self.epsilon
             self.error_flag = True
 
@@ -132,7 +132,7 @@ class Stock:
             self.long_term_growth_rate = float(requests.request(
                 'GET', self.url_financial_growth).json()[0]["dividendsperShareGrowth"])
         except Exception as e:
-            print('long_term_growth_rate: ',e)
+            print('[ERROR] long_term_growth_rate: ',e)
             self.long_term_growth_rate = self.epsilon
             self.error_flag = True
 
@@ -141,7 +141,7 @@ class Stock:
             self.current_share_price = float(requests.request(
                 'GET', self.url_profile).json()[0]['price'])
         except Exception as e:
-            print('current_share_price: ',e)
+            print('[ERROR] current_share_price: ',e)
             self.current_share_price = self.epsilon
             self.error_flag = True
 
@@ -150,7 +150,7 @@ class Stock:
             self.stock_beta = float(requests.request(
                 'GET', self.url_profile).json()[0]['beta'])
         except Exception as e:
-            print('stock_beta: ',e)
+            print('[ERROR] stock_beta: ',e)
             self.stock_beta = self.epsilon
             self.error_flag = True
 
@@ -161,7 +161,7 @@ class Stock:
             self.risk_free_rate = float(
                 self.response_risk_free[self.response_risk_free['Country'] == 'United States']['10Y Yield'].values[0].strip('%'))/100
         except Exception as e:
-            print('risk_free_rate: ',e)
+            print('[ERROR] risk_free_rate: ',e)
             self.risk_free_rate = self.epsilon
             self.error_flag = True
 
@@ -172,7 +172,7 @@ class Stock:
             self.risk_premium = float(
                 self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
         except Exception as e:
-            print('risk_premium: ',e)
+            print('[ERROR] risk_premium: ',e)
             self.risk_premium = self.epsilon
             self.error_flag = True
 
@@ -181,7 +181,7 @@ class Stock:
             self.tax_rate = float(requests.request(
                 'GET', self.url_financial_ratios).json()[0]['effectiveTaxRate'])
         except Exception as e:
-            print('tax_rate: ',e)
+            print('[ERROR] tax_rate: ',e)
             self.tax_rate = self.epsilon
             self.error_flag = True
 
@@ -195,7 +195,7 @@ class Stock:
 
             self.long_term_int_rate = self.interest_expense/self.long_term_debt
         except Exception as e:
-            print('long_term_int_rate: ',e)
+            print('[ERROR] long_term_int_rate: ',e)
             self.long_term_int_rate = self.epsilon
             self.error_flag = True
 
@@ -204,7 +204,7 @@ class Stock:
             self.market_cap = float(requests.request(
                 'GET', self.url_profile).json()[0]['mktCap'])
         except Exception as e:
-            print('market_cap: ',e)
+            print('[ERROR] market_cap: ',e)
             self.market_cap = self.epsilon
             #self.error_flag = True
 
@@ -216,7 +216,7 @@ class Stock:
 
             self.mv_debt = (self.total_debt)*self.debt_premium
         except Exception as e:
-            print('mv_debt: ',e)
+            print('[ERROR] mv_debt: ',e)
             self.mv_debt = self.epsilon
             self.error_flag = True
 
@@ -226,7 +226,7 @@ class Stock:
             self.total_liab = float(requests.request(
                 'GET', self.url_balance_quarter).json()[0]["totalLiabilities"])
         except Exception as e:
-            print('total_liab: ',e)
+            print('[ERROR] total_liab: ',e)
             self.total_liab = self.epsilon
             self.error_flag = True
 
@@ -236,7 +236,7 @@ class Stock:
             self.cce = float(requests.request('GET', self.url_balance_quarter).json()[
                              0]["cashAndCashEquivalents"])
         except Exception as e:
-            print('cce: ',e)
+            print('[ERROR] cce: ',e)
             self.cce = self.epsilon
             self.error_flag = True
 
@@ -248,7 +248,7 @@ class Stock:
             self.gdp_growth_rate = float(
                 self.response_gdp_growth_rate[self.response_gdp_growth_rate['Country'] == 'United States']['Average GDP growthrate (%) 2013–2018'].values)/100
         except Exception as e:
-            print('gdp_growth_rate: ',e)
+            print('[ERROR] gdp_growth_rate: ',e)
             self.gdp_growth_rate = self.epsilon
             self.error_flag = True
 
