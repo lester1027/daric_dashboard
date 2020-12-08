@@ -367,6 +367,8 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
      State('safety_margin', 'value'),
      State('table', 'data')])
 def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ticker, start_date, end_date, margin, rows):
+    epsilon = 9999999999
+
     # if the last change is 'analysis button is clicked' 
     # instead of'the cells in the table are changed' or 'a new row is added'
     if analysis_timestamp >= data_timestamp and analysis_timestamp >= add_row_timestamp:
@@ -382,7 +384,7 @@ def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ti
     # if the last change is 'the cells in the table are changed'
     # instead of'analysis button is clicked' or 'a new row is added'
     elif data_timestamp > analysis_timestamp and data_timestamp > add_row_timestamp:
-        # the intrinsic values are calculated again with the same pipeline
+        # each intrinsic value is calculated again with the same pipeline
         for row in rows:
 
             _, _, _, row['Intrinsic_Value_per_Share'] = calculate_intrinsic_value(
@@ -404,8 +406,12 @@ def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ti
 
             row['Intrinsic_Value_per_Share_with_Safety_Margin'] = row['Intrinsic_Value_per_Share'] * \
                 (1-margin/100)
+
+            # check if the corresponding error_flag of the stock is True
+            if epsilon in row.values():
+                row['Comparison'] = 'Error'
             # determine if the stock is over-valued or under-valued
-            if float(row['4_Current_Share_Price']) <= float(row['Intrinsic_Value_per_Share_with_Safety_Margin']):
+            elif float(row['4_Current_Share_Price']) <= float(row['Intrinsic_Value_per_Share_with_Safety_Margin']):
                 row['Comparison'] = 'Under'
             elif float(row['4_Current_Share_Price']) >= float(row['Intrinsic_Value_per_Share_with_Safety_Margin']):
                 row['Comparison'] = 'Over'
