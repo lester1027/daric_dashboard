@@ -174,19 +174,19 @@ app.layout = html.Div([
                     'id': 'Comparison'
                 },
                 {
-                    'name': 'Intrinsic_Value_per_Share_with_Safety_Margin',
+                    'name': 'Intrinsic Value per Share with Safety Margin',
                     'id': 'Intrinsic_Value_per_Share_with_Safety_Margin',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': 'Intrinsic_Value_per_Share',
+                    'name': 'Intrinsic Value per Share',
                     'id': 'Intrinsic_Value_per_Share',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': '1_TTM_Free_Cash_Flow',
+                    'name': '1. TTM Free Cash Flow',
                     'id': '1_TTM_Free_Cash_Flow',
                     "deletable": True,
                     "selectable": True,
@@ -194,7 +194,7 @@ app.layout = html.Div([
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': '2_Shares_Outstanding',
+                    'name': '2. Shares Outstanding',
                     'id': '2_Shares_Outstanding',
                     "deletable": True,
                     "selectable": True,
@@ -202,7 +202,7 @@ app.layout = html.Div([
                     'format': Format(group=','),
                 },
                 {
-                    'name': '3_Long_Term_Growth_Rate',
+                    'name': '3. Long Term Growth Rate',
                     'id': '3_Long_Term_Growth_Rate',
                     "deletable": True,
                     "selectable": True,
@@ -210,7 +210,7 @@ app.layout = html.Div([
                     'format': Format(precision=4)
                 },
                 {
-                    'name': '4_Current_Share_Price',
+                    'name': '4. Current Share Price',
                     'id': '4_Current_Share_Price',
                     "deletable": True,
                     "selectable": True,
@@ -218,7 +218,7 @@ app.layout = html.Div([
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': '5_Stock_Beta',
+                    'name': '5. Stock Beta',
                     'id': '5_Stock_Beta',
                     "deletable": True,
                     "selectable": True,
@@ -226,7 +226,7 @@ app.layout = html.Div([
                     'format': Format(precision=4)
                 },
                 {
-                    'name': '6_Risk_Free_Rate',
+                    'name': '6. Risk Free Rate',
                     'id': '6_Risk_Free_Rate',
                     "deletable": True,
                     "selectable": True,
@@ -234,7 +234,7 @@ app.layout = html.Div([
                     'format': Format(precision=5)
                 },
                 {
-                    'name': '7_Market_Risk_Premium',
+                    'name': '7. Market Risk Premium',
                     'id': '7_Market_Risk_Premium',
                     "deletable": True,
                     "selectable": True,
@@ -242,7 +242,7 @@ app.layout = html.Div([
                     'format': Format(precision=3)
                 },
                 {
-                    'name': '8_Business_Tax_Rate',
+                    'name': '8. Business Tax Rate',
                     'id': '8_Business_Tax_Rate',
                     "deletable": True,
                     "selectable": True,
@@ -250,7 +250,7 @@ app.layout = html.Div([
                     'format': Format(precision=4)
                 },
                 {
-                    'name': '9_Estimate_Interest_Rate',
+                    'name': '9. Estimate Interest Rate',
                     'id': '9_Estimate_Interest_Rate',
                     "deletable": True,
                     "selectable": True,
@@ -258,7 +258,7 @@ app.layout = html.Div([
                     'format': Format(precision=4)
                 },
                 {
-                    'name': '10_Market_Value_of_Equity',
+                    'name': '10. Market Value of Equity',
                     'id': '10_Market_Value_of_Equity',
                     "deletable": True,
                     "selectable": True,
@@ -266,7 +266,7 @@ app.layout = html.Div([
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': '11_Market_Value_of_Debt',
+                    'name': '11. Market Value of Debt',
                     'id': '11_Market_Value_of_Debt',
                     "deletable": True,
                     "selectable": True,
@@ -274,7 +274,7 @@ app.layout = html.Div([
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': '12_Total_Liabilities',
+                    'name': '12. Total Liabilities',
                     'id': '12_Total_Liabilities',
                     "deletable": True,
                     "selectable": True,
@@ -282,7 +282,7 @@ app.layout = html.Div([
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': '13_Cash_&_Cash_Equivalents',
+                    'name': '13. Cash & Cash Equivalents',
                     'id': '13_Cash_&_Cash_Equivalents',
                     "deletable": True,
                     "selectable": True,
@@ -290,7 +290,7 @@ app.layout = html.Div([
                     'format': FormatTemplate.money(2)
                 },
                 {
-                    'name': '14_GDP_Growth_Rate',
+                    'name': '14. GDP Growth Rate',
                     'id': '14_GDP_Growth_Rate',
                     "deletable": True,
                     "selectable": True,
@@ -304,9 +304,6 @@ app.layout = html.Div([
             sort_action="native",
             row_deletable=True,
             editable=True,
-            style_cell={
-                'whiteSpace': 'normal'
-            },
             style_data_conditional=[
                 {
                     'if': {'row_index': 'odd'},
@@ -332,19 +329,24 @@ app.layout = html.Div([
                 },
 
                 {
-                    'if': {'column_id': 'Comparison','filter_query': '{Comparison}="Under"'},
+                    'if': {'column_id': 'Comparison', 'filter_query': '{Comparison}="Under"'},
                     'backgroundColor': 'limegreen',
                     'color': 'white'
                 },
-                
+
                 {
-                    'if': {'column_id': 'Comparison','filter_query': '{Comparison}="Over"'},
+                    'if': {'column_id': 'Comparison', 'filter_query': '{Comparison}="Over"'},
                     'backgroundColor': 'darksalmon',
                     'color': 'white'
                 }
 
             ],
-            style_table={'overflowX': 'auto'}
+            style_table={'overflowX': 'auto'},
+            style_data={
+                'whiteSpace': 'normal',
+                'height': 'auto'
+            },
+            style_header={'padding-right': '35px'}
             # style_header={'backgroundColor': 'rgb(30, 30, 30)'},
             # style_cell={
             #    'backgroundColor': 'rgb(50, 50, 50)',
@@ -477,7 +479,7 @@ def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ti
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(port=8500)
 
 
 # %%
