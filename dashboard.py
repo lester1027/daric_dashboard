@@ -89,10 +89,13 @@ for tic in allStocks['Symbol']:
     options.append({'label': '{} {}'.format(
         tic, allStocks[allStocks['Symbol'] == tic]['Name'].values[0]), 'value': tic})
 
-# %% [markdown]
-# ## Create the Dashboard
 
-# %%
+
+
+
+
+
+# %% Dashboard layout
 app = dash.Dash()
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 server = app.server
@@ -140,7 +143,7 @@ app.layout = html.Div([
     html.Hr(),
 
     html.Div([
-        
+
         html.H2('Discounted Cash Flow Approach'),
         html.H3('Safety Margin'),
         dcc.Input(
@@ -158,16 +161,16 @@ app.layout = html.Div([
 
     html.Div([
         html.Button(
-            id='analysis-button',
+            id='calculate_dcf_button',
             n_clicks_timestamp=0,
-            children='Fundamental Analysis',
-            style={'fontSize': 21, 'marginLeft': '30px'}
+            children='Calculate Intrinsic Value',
+            style={'fontSize': 18, 'marginLeft': '30px'}
         )
     ], style={'display': 'inline-block'}),
 
     html.Div([
         dash_table.DataTable(
-            id='table',
+            id='dcf_table',
             columns=[
                 {
                     'name': 'Symbol',
@@ -361,13 +364,29 @@ app.layout = html.Div([
 
     html.Div([
         html.Button(
-            id='add-row-button',
+            id='add_dcf_row_button',
             n_clicks_timestamp=0,
             children='Add an empty row',
             style={'fontSize': 17, 'marginLeft': '15px'}
         )
     ], style={'display': 'inline-block'}),
-    html.Div(),
+
+    html.Hr(),
+    html.Div([
+        html.H2('Good Stocks Cheap Approach'),
+        html.H3('Key numbers'),
+        dash_table.DataTable(
+            id='key_number_table',
+            columns=[
+                {
+                    'name': 'Symbol',
+                    'id': 'symbol'
+                }]
+        ),
+        html.H3('Ratios')]
+        
+
+    ),
     html.Div(),
     html.Div(),
     html.Div(),
@@ -376,7 +395,14 @@ app.layout = html.Div([
 ])
 
 
-# callback functions
+
+
+
+
+
+
+
+#%% callback functions
 @ app.callback(
     Output('my_graph', 'figure'),
     [Input('price-button', 'n_clicks')],
@@ -402,15 +428,15 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
 
 
 @ app.callback(
-    Output('table', 'data'),
-    [Input('analysis-button', 'n_clicks_timestamp'),
-     Input('table', 'data_timestamp'),
-     Input('add-row-button', 'n_clicks_timestamp')],
+    Output('dcf_table', 'data'),
+    [Input('calculate_dcf_button', 'n_clicks_timestamp'),
+     Input('dcf_table', 'data_timestamp'),
+     Input('add_dcf_row_button', 'n_clicks_timestamp')],
     [State('my_ticker_symbol', 'value'),
      State('my_date_picker', 'start_date'),
      State('my_date_picker', 'end_date'),
      State('safety_margin', 'value'),
-     State('table', 'data')])
+     State('dcf_table', 'data')])
 def update_dcf(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ticker, start_date, end_date, margin, rows):
     epsilon = 9999999999
 
