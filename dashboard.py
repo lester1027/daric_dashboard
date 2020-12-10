@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 from Stock import Stock
-from calculate import calculate_intrinsic_value
+from calculate_intrinsic_value import calculate_intrinsic_value
 
 # %% [markdown]
 # ## Acquire the stock information from the web for intrinsic value calculation.
@@ -100,7 +100,8 @@ server = app.server
 # design the dashboard layout
 app.layout = html.Div([
     html.H1('Stock Ticker Dashboard'),
-
+    html.Hr(),
+    html.H2('Graph'),
     html.Div([
         html.H3('Select stock symbols:', style={'paddingRight': '30px'}),
         dcc.Dropdown(
@@ -136,8 +137,11 @@ app.layout = html.Div([
         figure={}
     ),
 
+    html.Hr(),
 
     html.Div([
+        
+        html.H2('Discounted Cash Flow Approach'),
         html.H3('Safety Margin'),
         dcc.Input(
             id='safety_margin',
@@ -363,6 +367,11 @@ app.layout = html.Div([
             style={'fontSize': 17, 'marginLeft': '15px'}
         )
     ], style={'display': 'inline-block'}),
+    html.Div(),
+    html.Div(),
+    html.Div(),
+    html.Div(),
+    html.Div()
 
 ])
 
@@ -402,7 +411,7 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
      State('my_date_picker', 'end_date'),
      State('safety_margin', 'value'),
      State('table', 'data')])
-def update_table(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ticker, start_date, end_date, margin, rows):
+def update_dcf(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ticker, start_date, end_date, margin, rows):
     epsilon = 9999999999
 
     # if the last change is 'analysis button is clicked'

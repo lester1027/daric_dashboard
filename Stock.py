@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from calculate import calculate_intrinsic_value
+from calculate_intrinsic_value import calculate_intrinsic_value
 import requests
 
 
