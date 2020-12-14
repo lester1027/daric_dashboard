@@ -5,23 +5,28 @@ import requests
 
 
 class Stock:
+    '''
+    a class variable to store all the URLs to be used
+    '''
+
     API_KEY = 'df55e203f4c76c061a598aaf16ea454d'
-    # a class variable to store all the URLs to be used
-    URL_DICT = {'price_history': 'https://financialmodelingprep.com/api/v3/historical-price-full/{}?serietype=line&apikey={}',
-                'cashflow_quarter': 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{}?period=quarter&apikey={}',
-                'cashflow': 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{}?apikey={}',
+    LIMIT = 5
+    URL_DICT = {'price_history': 'https://financialmodelingprep.com/api/v3/historical-price-full/{symbol}?serietype=line&apikey={api_key}',
+                'cashflow_quarter': 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{symbol}?limit={limit}&period=quarter&apikey={api_key}',
+                'cashflow': 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{symbol}?limit={limit}&apikey={api_key}',
+                'income': 'https://financialmodelingprep.com/api/v3/income-statement/{symbol}?limit={limit}&apikey={api_key}',
+                'balance': 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{symbol}?limit={limit}&apikey={api_key}',
+                'balance_quarter': 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{symbol}?limit={limit}&period=quarter&apikey={api_key}',
+                'company_quote': 'https://financialmodelingprep.com/api/v3/quote/{symbol}?apikey={api_key}',
 
-                'company_quote': 'https://financialmodelingprep.com/api/v3/quote/{}?apikey={}',
-
-                'financial_growth': 'https://financialmodelingprep.com/api/v3/financial-growth/{}?apikey={}',
-                'profile': 'https://financialmodelingprep.com/api/v3/profile/{}?apikey={}',
+                'financial_growth': 'https://financialmodelingprep.com/api/v3/financial-growth/{symbol}?limit={limit}&apikey={api_key}',
+                'profile': 'https://financialmodelingprep.com/api/v3/profile/{symbol}?apikey={api_key}',
                 'gov_bonds': 'http://www.worldgovernmentbonds.com',
                 'risk_premium': 'http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html',
-                'financial_ratios': 'https://financialmodelingprep.com/api/v3/ratios/{}?apikey={}',
-                'income': 'https://financialmodelingprep.com/api/v3/income-statement/{}?apikey={}',
-                'balance': 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{}?apikey={}',
-                'balance_quarter': 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{}?period=quarter&apikey={}',
-                'gdp_growth_rate': 'https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate'}
+                'financial_ratios': 'https://financialmodelingprep.com/api/v3/ratios/{symbol}?apikey={api_key}',
+
+                'gdp_growth_rate': 'https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate',
+                'enterprise_value':'https://financialmodelingprep.com/api/v3/enterprise-values/{symbol}?limit={limit}&apikey={api_key}'}
 
     def __init__(self, symbol, start_date, end_date, margin):
         self.symbol = symbol
@@ -33,84 +38,88 @@ class Stock:
         self.epsilon = 9999999999
         self.error_flag = False
 
-    # a private function to construct the URLs with the input symbol
+    
     def _get_f_url(self, url, format=False):
+        # a private function to construct the URLs with the input symbol
         if format:
-            return Stock.URL_DICT[url].format(self.symbol, Stock.API_KEY)
+            return Stock.URL_DICT[url].format(symbol=self.symbol, limit=Stock.LIMIT, api_key=Stock.API_KEY)
         else:
             return Stock.URL_DICT[url]
 
     def update_source(self):
-        # source of price_history
+        # construct the URLs and response for acquiring financial numbers
         self.url_price_history = self._get_f_url('price_history', format=True)
-
-        # source of figures 1
-        self.url_cashflow_quarter = self._get_f_url(
-            'cashflow_quarter', format=True)
-
-        self.url_cashflow = self._get_f_url('cashflow', format=True)
-
-        # source of figures 2
         self.url_company_quote = self._get_f_url('company_quote', format=True)
-
-        # source of figure 3
-        self.url_financial_growth = self._get_f_url(
-            'financial_growth', format=True)
-
-        # source of figures 4,5,10
         self.url_profile = self._get_f_url('profile', format=True)
 
-        # source of figure 6
-        self.url_gov_bonds = self._get_f_url('gov_bonds', format=False)
+        self.url_cashflow_quarter = self._get_f_url('cashflow_quarter', format=True)
 
-        # source of figure 7
-        self.url_risk_premium = self._get_f_url('risk_premium', format=False)
-
-        # source of figure 8
-        self.url_financial_ratios = self._get_f_url(
-            'financial_ratios', format=True)
-
-        # source of figure 9
+        self.url_cashflow = self._get_f_url('cashflow', format=True)
         self.url_income = self._get_f_url('income', format=True)
         self.url_balance = self._get_f_url('balance', format=True)
 
-        # source of figure 11,12,13
-        self.url_balance_quarter = self._get_f_url(
-            'balance_quarter', format=True)
+        self.url_balance_quarter = self._get_f_url('balance_quarter', format=True)
+        
+        self.url_financial_growth = self._get_f_url('financial_growth', format=True)
 
-        # source of figure 14
-        self.url_gdp_growth_rate = self._get_f_url(
-            'gdp_growth_rate', format=False)
+        self.url_enterprise_value = self._get_f_url('enterprise_value',format=True)
+
+        self.url_gov_bonds = self._get_f_url('gov_bonds', format=False)
+
+        self.url_risk_premium = self._get_f_url('risk_premium', format=False)
+
+        self.url_financial_ratios = self._get_f_url('financial_ratios', format=True)
+
+        self.url_gdp_growth_rate = self._get_f_url('gdp_growth_rate', format=False)
+
+
+    def update_response(self):
+        # upadte the response of the request from the web 
+        self.response_profile = requests.request('GET',self.url_profile).json()
+        self.response_company_quote = requests.request('GET',self.url_company_quote).json()
+        self.response_price_history = requests.request("GET", self.url_price_history).json()['historical']
+        self.response_balance = requests.request('GET',self.url_balance).json()
+        self.response_balance_quarter = requests.request('GET',self.url_balance_quarter).json()
+        self.response_income = requests.request('GET',self.url_income).json()
+        self.response_cashflow_quarter = requests.request('GET', self.url_cashflow_quarter).json()
+
+        self.response_cashflow = requests.request('GET', self.url_cashflow).json()
+        self.response_financial_growth = requests.request('GET',self.url_financial_growth).json()
+        self.response_risk_free = pd.read_html(self.url_gov_bonds)[0]
+
+        self.response_risk_premium = pd.read_html(self.url_risk_premium, header=0)[0]
+        self.response_financial_ratios = requests.request('GET',self.url_financial_ratios).json()
+        self.response_gdp_growth_rate = pd.read_html(self.url_gdp_growth_rate)[1]
+
+        self.response_enterprise_value = requests.request('GET',self.url_enterprise_value).json()
+
 
     def update_price(self):
         # price history
-        self.response_price_history = requests.request(
-            "GET", self.url_price_history).json()['historical']
         self.price_history = pd.DataFrame(self.response_price_history)
         self.selected_price_history = self.price_history[(
             self.price_history['date'] > self.start_date) & (self.price_history['date'] < self.end_date)]
 
-    def update_data(self):
-        # figure 1: TTM FCF
+    def update_dcf_data(self):
+        # dcf figure 1: TTM FCF
         try:
-            self.response_cashflow_quarter = pd.DataFrame(requests.request(
-                'GET', self.url_cashflow_quarter).json(), dtype=float)
-            self.response_cashflow = pd.DataFrame(requests.request(
-                'GET', self.url_cashflow).json(), dtype=float)
-
+            df_response_cashflow = pd.DataFrame(self.response_cashflow)
+            df_response_cashflow_quarter = pd.DataFrame(self.response_cashflow_quarter)
             # if the most recent annual cashflow statement is the mose recent cashflow statement
-            if self.response_cashflow.loc[0, 'date'] == self.response_cashflow_quarter.loc[0, 'date']:
-                self.ttm_FCF = self.response_cashflow.loc[0, 'freeCashFlow']
+            if df_response_cashflow.loc[0, 'date'] == df_response_cashflow_quarter.loc[0, 'date']:
+                self.ttm_FCF = df_response_cashflow.loc[0, 'freeCashFlow']
             # if there are quarterly cashflow statements released after the latest annual cashflow statement
             else:
-                # use the free cash flow in the most recent annual cashflow statement and add all those from more recently quarterly cashflow statement then minus those from corrseponding quarterly cashflow from the previous year
-                self.offset = self.response_cashflow_quarter.index[self.response_cashflow_quarter['date'] == self.response_cashflow.loc[0, 'date']].tolist()[
+                # use the free cash flow in the most recent annual cashflow statement
+                # and add all those from more recently quarterly cashflow statement 
+                # then minus those from corrseponding quarterly cashflow from the previous year
+                self.offset = df_response_cashflow_quarter.index[df_response_cashflow_quarter['date'] == df_response_cashflow.loc[0, 'date']].tolist()[
                     0]
                 self.quarters_added = np.array(
-                    self.response_cashflow_quarter.loc[0:self.offset-1, 'freeCashFlow']).astype(np.float).sum()
+                    df_response_cashflow_quarter.loc[0:self.offset-1, 'freeCashFlow']).astype(np.float).sum()
                 self.quarters_dropped = np.array(
-                    self.response_cashflow_quarter.loc[4:self.offset+4-1, 'freeCashFlow']).astype(np.float).sum()
-                self.ttm_FCF = np.array(self.response_cashflow.loc[0, 'freeCashFlow']).astype(
+                    df_response_cashflow_quarter.loc[4:self.offset+4-1, 'freeCashFlow']).astype(np.float).sum()
+                self.ttm_FCF = np.array(df_response_cashflow.loc[0, 'freeCashFlow']).astype(
                     np.float)+self.quarters_added-self.quarters_dropped
 
         except Exception as e:
@@ -118,46 +127,41 @@ class Stock:
             self.ttm_FCF = self.epsilon
             self.error_flag = True
 
-        # Figure 2: Total number of shares outstanding
+        # dcf Figure 2: Total number of shares outstanding
         try:
-            self.shares_outstanding = float(requests.request(
-                'GET', self.url_company_quote).json()[0]["sharesOutstanding"])
+            self.shares_outstanding = self.response_company_quote[0]["sharesOutstanding"]
         except Exception as e:
             print('[ERROR] shares_outstanding: ', e)
             self.shares_outstanding = self.epsilon
             self.error_flag = True
 
-        # Figure 3: Long term growth rate
+        # dcf Figure 3: Long term growth rate
         try:
-            self.long_term_growth_rate = float(requests.request(
-                'GET', self.url_financial_growth).json()[0]["dividendsperShareGrowth"])
+            self.long_term_growth_rate = self.response_financial_growth[0]["dividendsperShareGrowth"]
         except Exception as e:
             print('[ERROR] long_term_growth_rate: ', e)
             self.long_term_growth_rate = self.epsilon
             self.error_flag = True
 
-        # Figure 4: Current share price
+        # dcf Figure 4: Current share price
         try:
-            self.current_share_price = float(requests.request(
-                'GET', self.url_profile).json()[0]['price'])
+            self.current_share_price = self.response_profile[0]['price']
         except Exception as e:
             print('[ERROR] current_share_price: ', e)
             self.current_share_price = self.epsilon
             self.error_flag = True
 
-        # Figure 5: Stock beta
+        # dcf Figure 5: Stock beta
         try:
-            self.stock_beta = float(requests.request(
-                'GET', self.url_profile).json()[0]['beta'])
+            self.stock_beta = self.response_profile[0]['beta']
         except Exception as e:
             print('[ERROR] stock_beta: ', e)
             self.stock_beta = self.epsilon
             self.error_flag = True
 
-        # Figure 6: Risk free rate
+        # dcf Figure 6: Risk free rate
         # 10-year government's bond
         try:
-            self.response_risk_free = pd.read_html(self.url_gov_bonds)[0]
             self.risk_free_rate = float(
                 self.response_risk_free[self.response_risk_free['Country'] == 'United States']['10Y Yield'].values[0].strip('%'))/100
         except Exception as e:
@@ -165,10 +169,8 @@ class Stock:
             self.risk_free_rate = self.epsilon
             self.error_flag = True
 
-        # Figure 7: Market risk premium
+        # dcf Figure 7: Market risk premium
         try:
-            self.response_risk_premium = pd.read_html(
-                self.url_risk_premium, header=0)[0]
             self.risk_premium = float(
                 self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
         except Exception as e:
@@ -176,22 +178,19 @@ class Stock:
             self.risk_premium = self.epsilon
             self.error_flag = True
 
-        # Figure 8: Business tax rate
+        # dcf Figure 8: Business tax rate
         try:
-            self.tax_rate = float(requests.request(
-                'GET', self.url_financial_ratios).json()[0]['effectiveTaxRate'])
+            self.tax_rate = self.response_financial_ratios[0]['effectiveTaxRate']
         except Exception as e:
             print('[ERROR] tax_rate: ', e)
             self.tax_rate = self.epsilon
             self.error_flag = True
 
-        # Figure 9: Estimated long-term interest rate
+        # dcf Figure 9: Estimated long-term interest rate
         try:
-            self.interest_expense = float(requests.request(
-                'GET', self.url_income).json()[0]['interestExpense'])
+            self.interest_expense = self.response_income[0]['interestExpense']
 
-            self.long_term_debt = float(requests.request(
-                'GET', self.url_balance).json()[0]['longTermDebt'])
+            self.long_term_debt = float(self.response_balance[0]['longTermDebt'])
 
             self.long_term_int_rate = self.interest_expense/self.long_term_debt
         except Exception as e:
@@ -199,20 +198,18 @@ class Stock:
             self.long_term_int_rate = self.epsilon
             self.error_flag = True
 
-        # Figure 10: Market value of equity
+        # dcf Figure 10: Market value of equity
         try:
-            self.market_cap = float(requests.request(
-                'GET', self.url_profile).json()[0]['mktCap'])
+            self.market_cap = self.response_profile[0]['mktCap']
         except Exception as e:
             print('[ERROR] market_cap: ', e)
             self.market_cap = self.epsilon
-            #self.error_flag = True
+            self.error_flag = True
 
-        # Figure 11: Market value of debt
+        # dcf Figure 11: Market value of debt
         # use the most recent quarter
         try:
-            self.total_debt = float(requests.request(
-                'GET', self.url_balance_quarter).json()[0]['totalDebt'])
+            self.total_debt = self.response_balance_quarter[0]['totalDebt']
 
             self.mv_debt = (self.total_debt)*self.debt_premium
         except Exception as e:
@@ -220,31 +217,27 @@ class Stock:
             self.mv_debt = self.epsilon
             self.error_flag = True
 
-        # Figure 12: Total liabilities
+        # dcf Figure 12: Total liabilities
         # use the most recent quarter
         try:
-            self.total_liab = float(requests.request(
-                'GET', self.url_balance_quarter).json()[0]["totalLiabilities"])
+            self.total_liab = self.response_balance_quarter[0]["totalLiabilities"]
         except Exception as e:
             print('[ERROR] total_liab: ', e)
             self.total_liab = self.epsilon
             self.error_flag = True
 
-        # Figure 13: Total cash and cash equivalents
+        # dcf Figure 13: Total cash and cash equivalents
         # use the most recent quarter
         try:
-            self.cce = float(requests.request('GET', self.url_balance_quarter).json()[
-                             0]["cashAndCashEquivalents"])
+            self.cce = self.response_balance_quarter[0]["cashAndCashEquivalents"]
         except Exception as e:
             print('[ERROR] cce: ', e)
             self.cce = self.epsilon
             self.error_flag = True
 
-        # Figure 14: GDP growth rate
+        # dcf Figure 14: GDP growth rate
         # the real GDP growth rate from 2013 to 2018
         try:
-            self.response_gdp_growth_rate = pd.read_html(
-                self.url_gdp_growth_rate)[1]
             self.gdp_growth_rate = float(
                 self.response_gdp_growth_rate[self.response_gdp_growth_rate['Country'] == 'United States']['Average GDP growthrate (%) 2013–2018'].values)/100
         except Exception as e:
@@ -281,11 +274,11 @@ class Stock:
         elif self.current_share_price >= self.intrinsic_value_per_share_safe:
             self.comp = 'Over'
 
-        self.df_figures = pd.DataFrame(
+        self.dcf_figures = pd.DataFrame(
             data={'Symbol': [self.symbol],
                   'Comparison': [self.comp],
-                  'Intrinsic_Value_per_Share': [self.intrinsic_value_per_share],
                   'Intrinsic_Value_per_Share_with_Safety_Margin': [self.intrinsic_value_per_share_safe],
+                  'Intrinsic_Value_per_Share': [self.intrinsic_value_per_share],                  
                   '1_TTM_Free_Cash_Flow': [self.ttm_FCF],
                   '2_Shares_Outstanding': [self.shares_outstanding],
                   '3_Long_Term_Growth_Rate': [self.long_term_growth_rate],
@@ -301,4 +294,98 @@ class Stock:
                   '13_Cash_&_Cash_Equivalents': [self.cce],
                   '14_GDP_Growth_Rate': [self.gdp_growth_rate]})
 
+    def update_gsc_data(self):
+        # GSC key number 1 Capital Employed
+        self.total_assets_2_yr = self.response_balance[0]['totalAssets']
+        self.accounts_payable_2_yr = self.response_balance[0]['accountPayables']
+        self.total_current_liabilities_2_yr = self.response_balance[0]['totalCurrentLiabilities']
+        self.short_term_debt_2_yr = self.response_balance[0]['shortTermDebt']
+        self.non_interest_bearing_current_liabilities_2_yr = self.total_current_liabilities_2_yr - self.short_term_debt_2_yr
+        self.cce_2_yr = self.response_balance_quarter[0]["cashAndCashEquivalents"]
+        
+        self.total_assets_1_yr = self.response_balance[1]['totalAssets']
+        self.accounts_payable_1_yr = self.response_balance[1]['accountPayables']
+        self.total_current_liabilities_1_yr = self.response_balance[1]['totalCurrentLiabilities']
+        self.short_term_debt_1_yr = self.response_balance[1]['shortTermDebt']
+        self.non_interest_bearing_current_liabilities_1_yr = self.total_current_liabilities_1_yr - self.short_term_debt_1_yr
+        self.cce_1_yr = self.response_balance_quarter[1]["cashAndCashEquivalents"]
+        
+        # all cash subtracted
+        self.captial_employed_all_cash_sub_2_yr = self.total_assets_2_yr - self.cce_2_yr - self.non_interest_bearing_current_liabilities_2_yr
+        self.captial_employed_all_cash_sub_1_yr = self.total_assets_1_yr - self.cce_1_yr - self.non_interest_bearing_current_liabilities_1_yr
+
+        # no cash subtracted
+        self.captial_employed_no_cash_sub_2_yr = self.total_assets_2_yr - self.non_interest_bearing_current_liabilities_2_yr
+        self.captial_employed_no_cash_sub_1_yr = self.total_assets_1_yr - self.non_interest_bearing_current_liabilities_1_yr
+        
+        # GSC key number 2 Operating Income
+        self.operating_income_2_yr = self.response_income[0]['operatingIncome']
+        self.operating_income_1_yr = self.response_income[1]['operatingIncome']
+
+        # GSC key number 3 Free Cash Flow
+        self.FCF_2_yr = self.response_cashflow[0]['freeCashFlow']
+        self.FCF_1_yr = self.response_cashflow[1]['freeCashFlow']
+
+        # GSC key number 4 Book Value
+        self.BV_2_yr = self.response_balance[0]['totalStockholdersEquity']
+        self.BV_1_yr = self.response_balance[1]['totalStockholdersEquity']
+
+        # GSC key number 5 Tangible Book Value
+        self.goodwill_2_yr = self.response_balance[0]['goodwill']
+        self.goodwill_1_yr = self.response_balance[1]['goodwill']
+
+        self.TBV_2_yr = self.BV_2_yr - self.goodwill_2_yr
+        self.TBV_1_yr = self.BV_1_yr - self.goodwill_1_yr
+
+        # GSC key number 6 Fully Diluted Shares
+        self.fully_diluted_shares_2_yr = self.response_income[0]['weightedAverageShsOutDil']
+        self.fully_diluted_shares_1_yr = self.response_income[1]['weightedAverageShsOutDil']
+
+        # GSC return ROCE
+        self.ROCE_all_cash_sub = self.operating_income_2_yr/self.captial_employed_all_cash_sub_2_yr
+        self.ROCE_no_cash_sub = self.operating_income_2_yr/self.captial_employed_no_cash_sub_2_yr
+
+        # GSC return FCFROCE
+        self.FCFROCE_all_cash_sub = self.FCF_2_yr/self.captial_employed_all_cash_sub_2_yr
+        self.FCFROCE_no_cash_sub = self.FCF_2_yr/self.captial_employed_no_cash_sub_2_yr
+
+        # GSC growth d_OI_FDS_ratio
+        self.d_OI_FDS_ratio = ((self.operating_income_2_yr/self.fully_diluted_shares_2_yr)-(self.operating_income_1_yr/self.fully_diluted_shares_1_yr))/(self.operating_income_1_yr/self.fully_diluted_shares_1_yr)
+
+        # GSC growth d_FCF_FDS_ratio
+        self.d_FCF_FDS_ratio = ((self.FCF_2_yr/self.fully_diluted_shares_2_yr)-(self.FCF_1_yr/self.fully_diluted_shares_1_yr))/(self.FCF_1_yr/self.fully_diluted_shares_1_yr)
+
+        # GSC growth d_BV_FDS_ratio
+        self.d_BV_FDS_ratio = ((self.BV_2_yr/self.fully_diluted_shares_2_yr)-(self.BV_1_yr/self.fully_diluted_shares_1_yr))/(self.BV_1_yr/self.fully_diluted_shares_1_yr)
+
+        # GSC growth d_TBV_FDS_ratio
+        self.d_TBV_FDS_ratio = ((self.TBV_2_yr/self.fully_diluted_shares_2_yr)-(self.TBV_1_yr/self.fully_diluted_shares_1_yr))/(self.TBV_1_yr/self.fully_diluted_shares_1_yr)
+
+        # GSC le_ratio
+        self.le_ratio = self.total_liab/self.BV_2_yr
+
+        # GSC price MCAP_FCF_ratio
+        self.MCAP_FCF_ratio = self.market_cap/self.FCF_2_yr
+
+        # GSC price EV_OI_ratio
+        self.enterprise_value = self.response_enterprise_value[0]['enterpriseValue']
+        self.EV_OI_ratio = self.enterprise_value/self.operating_income_2_yr
+
+        # GSC price MCAP_BV_ratio
+        self.MCAP_FCF_ratio = self.market_cap/self.BV_2_yr
+
+        # GSC price MCAP_TBV ratio
+        self.MCAP_TBV_ratio = self.market_cap/self.TBV_2_yr
+        
         return self
+
+
+# %% test
+'''
+foo=Stock('AAPL','2000-10-27','2010-10-27',margin=20)
+foo.update_source()
+foo.update_price()
+foo.update_data()
+(foo.pv_discounted_FCF)/foo.shares_outstanding
+foo.intrinsic_value_per_share
+'''

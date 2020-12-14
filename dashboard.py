@@ -45,20 +45,7 @@ USERNAME_PASSWORD_PAIRS = [
 ]
 
 
-# %%
-# test
-'''
-foo=Stock('AAPL','2000-10-27','2010-10-27',margin=40)
-foo.update_source()
-foo.update_price()
-foo.update_data()
-(foo.pv_discounted_FCF)/foo.shares_outstanding
-foo.intrinsic_value_per_share
-'''
-
-
-# %%
-# Read stock symbols and names
+# %%Read stock symbols and names
 
 # US Nasdaq stocks
 nsdq = pd.read_csv('data/NASDAQcompanylist.csv')
@@ -90,12 +77,8 @@ for tic in allStocks['Symbol']:
         tic, allStocks[allStocks['Symbol'] == tic]['Name'].values[0]), 'value': tic})
 
 
-
-
-
-
-
-# %% Dashboard layout
+# %% ==================================================================================================
+# Dashboard layout
 app = dash.Dash()
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 server = app.server
@@ -377,14 +360,51 @@ app.layout = html.Div([
         html.H3('Key numbers'),
         dash_table.DataTable(
             id='key_number_table',
+            merge_duplicate_headers=True,
             columns=[
                 {
-                    'name': 'Symbol',
+                    'name': ['Symbol'],
                     'id': 'symbol'
-                }]
-        ),
+                },
+                {
+                    'name': ['1. Capital Employed (all cash subtracted)', '1st year'],
+                    'id': '1_cap_em_all_cash_sub_1_yr'
+                },
+                {
+                    'name': ['1. Capital Employed (all cash subtracted)', '2nd year'],
+                    'id': '1_cap_em_all_cash_sub_2_yr'
+                },
+                {
+                    'name': ['1. Capital Employed (no cash subtracted)', '1st year'],
+                    'id': '1_cap_em_no_cash_sub_1_yr'
+                },
+                {
+                    'name': ['1. Capital Employed (no cash subtracted)', '2nd year'],
+                    'id': '1_cap_em_no_cash_sub_2_yr'
+                },
+                {'name': ['2. Operating Income', '1st year'],
+                 'id':'2_operating_income_1_yr'},
+                {'name': ['2. Operating Income', '2nd year'],
+                 'id':'2_operating_income_2_yr'},
+                {'name': ['3. Free Cash Flow', '1st year'],
+                 'id':'3_free_cash_flow_1_yr'},
+                {'name': ['3. Free Cash Flow', '2nd year'],
+                 'id':'3_free_cash_flow_2_yr'},
+                {'name': ['4. Book Value', '1st year'],
+                 'id':'4_book_value_1_yr'},
+                {'name': ['4. Book Value', '2nd year'],
+                 'id':'4_book_value_2_yr'},
+                {'name': ['5. Tangible Book Value', '1st year'],
+                 'id':'5_tangible_book_value_1_yr'},
+                {'name': ['5. Tangible Book Value', '2nd year'],
+                 'id':'5_tangible_book_value_2_yr'},
+                {'name': ['6. Fully Diluted Shares', '1st year'],
+                 'id':'6_fully_diluted_shares_1_yr'},
+                {'name': ['6. Fully Diluted Shares', '2nd year'],
+                 'id':'6_fully_diluted_shares_2_yr'}],
+            style_table={'overflowX': 'auto'}),
         html.H3('Ratios')]
-        
+
 
     ),
     html.Div(),
@@ -395,14 +415,8 @@ app.layout = html.Div([
 ])
 
 
-
-
-
-
-
-
-
-#%% callback functions
+# %% ==============================================================================================
+# callback functions
 @ app.callback(
     Output('my_graph', 'figure'),
     [Input('price-button', 'n_clicks')],
@@ -449,7 +463,7 @@ def update_dcf(analysis_timestamp, data_timestamp, add_row_timestamp, stock_tick
             equity = Stock(tic, start_date[: 10], end_date[: 10], margin)
             equity.update_source()
             equity.update_data()
-            figure_rows = figure_rows.append(equity.df_figures)
+            figure_rows = figure_rows.append(equity.dcf_figures)
         return figure_rows.to_dict('records')
 
     # if the last change is 'the cells in the table are changed'
