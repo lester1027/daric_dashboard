@@ -462,7 +462,8 @@ def update_dcf(analysis_timestamp, data_timestamp, add_row_timestamp, stock_tick
         for tic in stock_ticker:
             equity = Stock(tic, start_date[: 10], end_date[: 10], margin)
             equity.update_source()
-            equity.update_data()
+            equity.update_response()
+            equity.update_dcf_data()
             figure_rows = figure_rows.append(equity.dcf_figures)
         return figure_rows.to_dict('records')
 
