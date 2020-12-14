@@ -95,6 +95,7 @@ class Stock:
 
 
     def update_price(self):
+        self.response_price_history = requests.request("GET", self.url_price_history).json()['historical']
         # price history
         self.price_history = pd.DataFrame(self.response_price_history)
         self.selected_price_history = self.price_history[(
