@@ -1,6 +1,5 @@
 .vscode/
-dashboard.ipynb
-trial.ipynb
+*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
