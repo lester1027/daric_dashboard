@@ -4,26 +4,26 @@
 # ## Import all necessary dependencies first
 
 # %%
+from calculate_intrinsic_value import calculate_intrinsic_value
+from Stock import Stock
+import pandas as pd
+import numpy as np
+import plotly.graph_objs as go
+from dash.dependencies import Input, Output, State
+from dash_table.Format import Format, Scheme, Sign, Symbol
+import dash_table.FormatTemplate as FormatTemplate
+import dash_table
+import dash_html_components as html
+import dash_core_components as dcc
+import dash_auth
+import dash
+from datetime import datetime
 import requests
 import jsonpickle
-from datetime import datetime
-
-import dash
-import dash_auth
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table
-import dash_table.FormatTemplate as FormatTemplate
-from dash_table.Format import Format, Scheme, Sign, Symbol
-from dash.dependencies import Input, Output, State
-import plotly.graph_objs as go
+import jsonpickle.ext.pandas as jsonpickle_pd
+jsonpickle_pd.register_handlers()
 
 
-import numpy as np
-import pandas as pd
-
-from Stock import Stock
-from calculate_intrinsic_value import calculate_intrinsic_value
 # %% [markdown]
 # ## Acquire the stock information from the web for intrinsic value calculation.
 # 1. Free Cash Flow
@@ -597,15 +597,16 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
 def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_date,
                 safety_margin):
     # the finanical figures are acquired and the intrinsic values are processed
-    rows = pd.DataFrame()
+    equity_list = list()
     for ticker in ticker_symbol:
         equity = Stock(ticker, start_date[: 10], end_date[: 10], safety_margin)
         equity.update_source()
         equity.update_response()
         equity.update_dcf_data()
         equity.update_gsc_data()
+        equity_list.append(equity)
     # json serialize the Python class
-    return jsonpickle.encode(equity)
+    return jsonpickle.encode(equity_list)
 
 
 @ app.callback(
@@ -614,15 +615,20 @@ def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_da
      Input('dcf_table', 'data_timestamp'),
      Input('add_dcf_row_button', 'n_clicks_timestamp')],
     [State('intermediate_stock_value', 'children'),
-     State('dcf_table', 'data')],
+     State('dcf_table', 'data'),
+     State('safety_margin', 'value')],
     prevent_initial_call=True)
-def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp, intermediate_stock_value, rows):
+def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
+               intermediate_stock_value, rows, safety_margin):
     epsilon = 9999999999
 
     # if the last change is 'analysis button is clicked'
     # instead of'the cells in the table are changed' or 'a new row is added'
     if calculate_timestamp >= dcf_data_timestamp and calculate_timestamp >= add_dcf_row_timestamp:
-        rows = intermediate_stock_value.dcf_figures
+        equity_list = jsonpickle.decode(intermediate_stock_value)
+        rows = pd.DataFrame()
+        for equity in equity_list:
+            rows = pd.concat([rows, equity.dcf_figures], axis=0)
         return rows.to_dict('records')
 
     # if the last change is 'the cells in the table are changed'
@@ -649,7 +655,7 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp, i
             )
 
             row['Intrinsic_Value_per_Share_with_Safety_Margin'] = row['Intrinsic_Value_per_Share'] * \
-                (1-margin/100)
+                (1-safety_margin/100)
 
             # check if the corresponding error_flag of the stock is True
             if epsilon in row.values():

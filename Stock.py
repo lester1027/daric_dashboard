@@ -439,4 +439,11 @@ foo.update_response()
 foo.update_price()
 foo.update_dcf_data()
 foo.update_gsc_data()
+
+bar=Stock('MSFT','2000-10-27','2010-10-27',margin=20)
+bar.update_source()
+bar.update_response()
+bar.update_price()
+bar.update_dcf_data()
+bar.update_gsc_data()
 '''
