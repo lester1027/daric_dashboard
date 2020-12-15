@@ -435,8 +435,8 @@ class Stock:
 '''
 foo=Stock('AAPL','2000-10-27','2010-10-27',margin=20)
 foo.update_source()
+foo.update_response()
 foo.update_price()
-foo.update_data()
-(foo.pv_discounted_FCF)/foo.shares_outstanding
-foo.intrinsic_value_per_share
+foo.update_dcf_data()
+foo.update_gsc_data()
 '''

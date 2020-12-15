@@ -4,6 +4,10 @@
 # ## Import all necessary dependencies first
 
 # %%
+import requests
+import jsonpickle
+from datetime import datetime
+
 import dash
 import dash_auth
 import dash_core_components as dcc
@@ -14,14 +18,12 @@ from dash_table.Format import Format, Scheme, Sign, Symbol
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 
-import requests
-from datetime import datetime
+
 import numpy as np
 import pandas as pd
 
 from Stock import Stock
 from calculate_intrinsic_value import calculate_intrinsic_value
-
 # %% [markdown]
 # ## Acquire the stock information from the web for intrinsic value calculation.
 # 1. Free Cash Flow
@@ -85,6 +87,8 @@ server = app.server
 
 # design the dashboard layout
 app.layout = html.Div([
+
+
     html.Div([
         html.H1('Stock Ticker Dashboard'),
         html.Hr(),
@@ -125,6 +129,27 @@ app.layout = html.Div([
         ),
         html.Br(),
         html.Hr(),
+        html.Div([
+            html.Button(
+                id='data_acquisition_button',
+                n_clicks=0,
+                children='Acquire Data',
+                style={'fontSize': 17, 'marginLeft': '30px'}
+            ),
+
+            html.Br(),
+            html.Br(),
+            html.Br(),
+            dcc.Loading(
+                id="loading",
+                type="circle",
+                # Render a idden div inside the app that stores the stock value
+                children=html.Div(id='intermediate_stock_value',
+                                  style={'display': 'none'})
+            )
+        ], style={'display': 'inline-block'}),
+
+        html.Hr(),
         html.Br(),
 
         html.H2('Discounted Cash Flow Approach'),
@@ -143,7 +168,7 @@ app.layout = html.Div([
 
 
         html.Button(
-            id='calculate_dcf_button',
+            id='calculate_button',
             n_clicks_timestamp=0,
             children='Calculate Intrinsic Value',
             style={'fontSize': 18, 'marginLeft': '30px'}
@@ -356,12 +381,7 @@ app.layout = html.Div([
 
     html.Div([
         html.H2('Good Stocks Cheap Approach'),
-        html.Button(
-            id='calculate_gsc_button',
-            n_clicks_timestamp=0,
-            children='Calculate the key numbers and ratios',
-            style={'fontSize': 17, 'marginLeft': '15px'}
-        ),
+
         html.H3('Key numbers'),
         dash_table.DataTable(
             id='gsc_key_number_table',
@@ -457,6 +477,14 @@ app.layout = html.Div([
                     'format': Format(group=',')
                 }],
             style_table={'overflowX': 'auto'}),
+
+        html.Button(
+            id='add_gsc_row_button',
+            n_clicks_timestamp=0,
+            children='Add an empty row',
+            style={'fontSize': 17, 'marginLeft': '15px'}
+        ),
+
         html.H3('Ratios'),
         dash_table.DataTable(
             id='gsc_ratio_table',
@@ -530,6 +558,8 @@ app.layout = html.Div([
 
 # %% ==============================================================================================
 # callback functions
+
+
 @ app.callback(
     Output('price_graph', 'figure'),
     [Input('price_button', 'n_clicks')],
@@ -537,8 +567,8 @@ app.layout = html.Div([
      State('date_picker', 'start_date'),
      State('date_picker', 'end_date'),
      State('safety_margin', 'value')],
-     prevent_initial_call=True)
-def update_graph(n_clicks, stock_ticker, start_date, end_date, margin, prevent_initial_call=True):
+    prevent_initial_call=True)
+def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
     # when the 'price_button' is clicked, display the close price data in the graph
     traces = []
     for tic in stock_ticker:
@@ -556,35 +586,48 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, margin, prevent_i
 
 
 @ app.callback(
-    Output('dcf_table', 'data'),
-    [Input('calculate_dcf_button', 'n_clicks_timestamp'),
-     Input('dcf_table', 'data_timestamp'),
-     Input('add_dcf_row_button', 'n_clicks_timestamp')],
+    Output('intermediate_stock_value', 'children'),
+    [Input('data_acquisition_button', 'n_clicks')],
     [State('ticker_symbol', 'value'),
      State('date_picker', 'start_date'),
      State('date_picker', 'end_date'),
-     State('safety_margin', 'value'),
+     State('safety_margin', 'value')],
+    prevent_initial_call=True
+)
+def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_date,
+                safety_margin):
+    # the finanical figures are acquired and the intrinsic values are processed
+    rows = pd.DataFrame()
+    for ticker in ticker_symbol:
+        equity = Stock(ticker, start_date[: 10], end_date[: 10], safety_margin)
+        equity.update_source()
+        equity.update_response()
+        equity.update_dcf_data()
+        equity.update_gsc_data()
+    # json serialize the Python class
+    return jsonpickle.encode(equity)
+
+
+@ app.callback(
+    Output('dcf_table', 'data'),
+    [Input('calculate_button', 'n_clicks_timestamp'),
+     Input('dcf_table', 'data_timestamp'),
+     Input('add_dcf_row_button', 'n_clicks_timestamp')],
+    [State('intermediate_stock_value', 'children'),
      State('dcf_table', 'data')],
-     prevent_initial_call=True)
-def update_dcf(analysis_timestamp, data_timestamp, add_row_timestamp, stock_ticker, start_date, end_date, margin, rows):
+    prevent_initial_call=True)
+def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp, intermediate_stock_value, rows):
     epsilon = 9999999999
 
     # if the last change is 'analysis button is clicked'
     # instead of'the cells in the table are changed' or 'a new row is added'
-    if analysis_timestamp >= data_timestamp and analysis_timestamp >= add_row_timestamp:
-        # the finanical figures are acquired and the intrinsic values are processed
-        rows = pd.DataFrame()
-        for tic in stock_ticker:
-            equity = Stock(tic, start_date[: 10], end_date[: 10], margin)
-            equity.update_source()
-            equity.update_response()
-            equity.update_dcf_data()
-            rows = rows.append(equity.dcf_figures)
+    if calculate_timestamp >= dcf_data_timestamp and calculate_timestamp >= add_dcf_row_timestamp:
+        rows = intermediate_stock_value.dcf_figures
         return rows.to_dict('records')
 
     # if the last change is 'the cells in the table are changed'
     # instead of'analysis button is clicked' or 'a new row is added'
-    elif data_timestamp > analysis_timestamp and data_timestamp > add_row_timestamp:
+    elif dcf_data_timestamp > calculate_timestamp and dcf_data_timestamp > add_dcf_row_timestamp:
         # each intrinsic value is calculated again with the same pipeline
         for row in rows:
 
@@ -620,7 +663,7 @@ def update_dcf(analysis_timestamp, data_timestamp, add_row_timestamp, stock_tick
 
     # if the last change is 'a new row is added'
     # instead of'analysis button is clicked' or 'the cells in the table are changed'
-    elif add_row_timestamp > analysis_timestamp and add_row_timestamp > data_timestamp:
+    elif add_dcf_row_timestamp > calculate_timestamp and add_dcf_row_timestamp > dcf_data_timestamp:
         rows.append({'Symbol': '',
                      'Comparison': '',
                      'Intrinsic_Value_per_Share_with_Safety_Margin': '',
@@ -645,14 +688,18 @@ def update_dcf(analysis_timestamp, data_timestamp, add_row_timestamp, stock_tick
 
 @ app.callback(
     Output('gsc_key_number_table', 'data'),
-    [Input('calculate_gsc_button', 'n_clicks')],
+    [Input('calculate_button', 'n_clicks_timestamp'),
+     Input('gsc_key_number_table', 'data_timestamp'),
+     Input('add_gsc_row_button', 'n_clicks_timestamp')],
     [State('ticker_symbol', 'value'),
      State('date_picker', 'start_date'),
      State('date_picker', 'end_date'),
-     State('safety_margin', 'value')]
+     State('safety_margin', 'value')],
+    prevent_initial_call=True
 )
-def update_key_numbers(calculate_gsc_button_click, ticker_symbol_value, 
-start_date, end_date, safety_margin, prevent_initial_call=True):
+def update_key_numbers(calculate_button_timestamp, gsc_key_number_table_timestamp,
+                       add_gsc_row_button_timestamp, ticker_symbol_value,
+                       start_date, end_date, safety_margin):
     rows = pd.DataFrame()
 
     for ticker in ticker_symbol_value:
