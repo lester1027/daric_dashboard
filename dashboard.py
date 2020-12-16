@@ -4,8 +4,12 @@
 # ## Import all necessary dependencies first
 
 # %%
-from calculate_intrinsic_value import calculate_intrinsic_value
 from Stock import Stock
+from calculate_gsc_ratios import calculate_gsc_ratios
+from calculate_intrinsic_value import calculate_intrinsic_value
+from datetime import datetime
+import requests
+
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
@@ -17,12 +21,9 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_auth
 import dash
-from datetime import datetime
-import requests
 import jsonpickle
 import jsonpickle.ext.pandas as jsonpickle_pd
 jsonpickle_pd.register_handlers()
-
 
 # %% [markdown]
 # ## Acquire the stock information from the web for intrinsic value calculation.
@@ -168,7 +169,7 @@ app.layout = html.Div([
 
 
         html.Button(
-            id='calculate_button',
+            id='calculate_dcf_button',
             n_clicks_timestamp=0,
             children='Calculate Intrinsic Value',
             style={'fontSize': 18, 'marginLeft': '30px'}
@@ -381,7 +382,12 @@ app.layout = html.Div([
 
     html.Div([
         html.H2('Good Stocks Cheap Approach'),
-
+        html.Button(
+            id='calculate_gsc_button',
+            n_clicks_timestamp=0,
+            children='Calculate GSC',
+            style={'fontSize': 17, 'marginLeft': '30px'}
+        ),
         html.H3('Key numbers'),
         dash_table.DataTable(
             id='gsc_key_number_table',
@@ -393,25 +399,25 @@ app.layout = html.Div([
                 },
                 {
                     'name': ['1. Capital Employed (all cash subtracted)', '1st year'],
-                    'id': '1_cap_em_all_cash_sub_1_yr',
+                    'id': '1_capital_employed_all_cash_sub_1_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['1. Capital Employed (all cash subtracted)', '2nd year'],
-                    'id': '1_cap_em_all_cash_sub_2_yr',
+                    'id': '1_capital_employed_all_cash_sub_2_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['1. Capital Employed (no cash subtracted)', '1st year'],
-                    'id': '1_cap_em_no_cash_sub_1_yr',
+                    'id': '1_capital_employed_no_cash_sub_1_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['1. Capital Employed (no cash subtracted)', '2nd year'],
-                    'id': '1_cap_em_no_cash_sub_2_yr',
+                    'id': '1_capital_employed_no_cash_sub_2_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
@@ -430,37 +436,37 @@ app.layout = html.Div([
                 },
                 {
                     'name': ['3. Free Cash Flow', '1st year'],
-                    'id':'3_free_cash_flow_1_yr',
+                    'id':'3_FCF_1_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['3. Free Cash Flow', '2nd year'],
-                    'id':'3_free_cash_flow_2_yr',
+                    'id':'3_FCF_2_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['4. Book Value', '1st year'],
-                    'id':'4_book_value_1_yr',
+                    'id':'4_BV_1_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['4. Book Value', '2nd year'],
-                    'id':'4_book_value_2_yr',
+                    'id':'4_BV_2_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['5. Tangible Book Value', '1st year'],
-                    'id':'5_tangible_book_value_1_yr',
+                    'id':'5_TBV_1_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['5. Tangible Book Value', '2nd year'],
-                    'id':'5_tangible_book_value_2_yr',
+                    'id':'5_TBV_2_yr',
                     'type': 'numeric',
                     'format': FormatTemplate.money(2)
                 },
@@ -475,7 +481,28 @@ app.layout = html.Div([
                     'id':'6_fully_diluted_shares_2_yr',
                     'type': 'numeric',
                     'format': Format(group=',')
+                },
+                {
+                    'name': ['', 'Total Liabilities'],
+                    'id':'total_liabilities',
+                    'type': 'numeric',
+                    'format': Format(group=',')
+                },
+                {
+                    'name': ['', 'Market Capitalization'],
+                    'id':'market_cap',
+                    'type': 'numeric',
+                    'format': Format(group=',')
+                },
+                {
+                    'name': ['', 'Enterprise Value'],
+                    'id':'enterprise_value',
+                    'type': 'numeric',
+                    'format': Format(group=',')
                 }],
+            data=[],
+            data_timestamp=0,
+            editable=True,
             style_table={'overflowX': 'auto'}),
 
         html.Button(
@@ -498,56 +525,70 @@ app.layout = html.Div([
                 },
                 {
                     'name': ['Return', '1. Return on Capital Employed (ROCE) (all cash subtracted)'],
-                    'id': '1_ROCE_all_cash_sub'
+                    'id': '1_ROCE_all_cash_sub',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Return', '1. Return on Capital Employed (ROCE) (no cash subtracted)'],
-                    'id': '1_ROCE_no_cash_sub'
+                    'id': '1_ROCE_no_cash_sub',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Return', '2. Free Cash Flow Return on Capital Employed (FCFROCE) (all cash subtracted)'],
-                    'id': '2_FCFROCE_all_cash_sub'
+                    'id': '2_FCFROCE_all_cash_sub',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Return', '2. Free Cash Flow Return on Capital Employed (FCFROCE) (no cash subtracted)'],
-                    'id': '2_FCFROCE_no_cash_sub'
+                    'id': '2_FCFROCE_no_cash_sub',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Growth', '3. Growth in Operating Income per Fully Diluted Share (ΔOI/FDS)'],
-                    'id': '3_d_OI_FDS_ratio'
+                    'id': '3_d_OI_FDS_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Growth', '4. Growth in Free Cash Flow per Fully Diluted Share (ΔFCF/FDS)'],
-                    'id': '4_d_FCF_FDS_ratio'
+                    'id': '4_d_FCF_FDS_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Growth', '5. Growth in Book Value per Fully Diluted Share (ΔBV/FDS)'],
-                    'id': '5_d_BV_FDS_ratio'
+                    'id': '5_d_BV_FDS_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Growth', '6. Growth in Tangible Book Value per Fully Diluted Share (ΔTBV/FDS)'],
-                    'id': '6_d_TBV_FDS_ratio'
+                    'id': '6_d_TBV_FDS_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['', '7. Liabilities-to-equity Ratio'],
-                    'id': '7_le_ratio'
+                    'id': '7_le_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Price', '8. Times Free Cash Flow (MCAP/FCF)'],
-                    'id': '8_MCAP_FCF_ratio'
+                    'id': '8_MCAP_FCF_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Price', '9. Enterprise Value to Operating Income (EV/OI)'],
-                    'id': '9_EV_OI_ratio'
+                    'id': '9_EV_OI_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Price', '10. Price to Book (MCAP/BV) (P/B Ratio)'],
-                    'id': '10_MCAP_FCF_ratio'
+                    'id': '10_MCAP_FCF_ratio',
+                    'type': 'numeric'
                 },
                 {
                     'name': ['Price', '11. Price to Tangible Book Value (MCAP/TBV) (PTBV)'],
-                    'id': '11_MCAP_TBV_ratio'
-                }]
+                    'id': '11_MCAP_TBV_ratio',
+                    'type': 'numeric'
+                }],
+            data=[]
         )]
 
 
@@ -568,11 +609,11 @@ app.layout = html.Div([
      State('date_picker', 'end_date'),
      State('safety_margin', 'value')],
     prevent_initial_call=True)
-def update_graph(n_clicks, stock_ticker, start_date, end_date, margin):
+def update_graph(n_clicks, stock_ticker, start_date, end_date, safety_margin):
     # when the 'price_button' is clicked, display the close price data in the graph
     traces = []
     for tic in stock_ticker:
-        equity = Stock(tic, start_date[: 10], end_date[: 10], margin)
+        equity = Stock(tic, start_date[: 10], end_date[: 10], safety_margin)
         equity.update_source()
         equity.update_price()
         traces.append(
@@ -611,7 +652,7 @@ def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_da
 
 @ app.callback(
     Output('dcf_table', 'data'),
-    [Input('calculate_button', 'n_clicks_timestamp'),
+    [Input('calculate_dcf_button', 'n_clicks_timestamp'),
      Input('dcf_table', 'data_timestamp'),
      Input('add_dcf_row_button', 'n_clicks_timestamp')],
     [State('intermediate_stock_value', 'children'),
@@ -628,6 +669,8 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
         equity_list = jsonpickle.decode(intermediate_stock_value)
         rows = pd.DataFrame()
         for equity in equity_list:
+            equity.dcf_figures['Intrinsic_Value_per_Share_with_Safety_Margin'] = equity.dcf_figures['Intrinsic_Value_per_Share']*(
+                1-safety_margin/100)
             rows = pd.concat([rows, equity.dcf_figures], axis=0)
         return rows.to_dict('records')
 
@@ -687,36 +730,103 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
                      '11_Market_Value_of_Debt': '',
                      '12_Total_Liabilities': '',
                      '13_Cash_&_Cash_Equivalents': '',
-                     '14_GDP_Growth_Rate': '',
+                     '14_GDP_Growth_Rate': ''
                      })
         return rows
 
 
 @ app.callback(
     Output('gsc_key_number_table', 'data'),
-    [Input('calculate_button', 'n_clicks_timestamp'),
-     Input('gsc_key_number_table', 'data_timestamp'),
+    [Input('calculate_gsc_button', 'n_clicks_timestamp'),
      Input('add_gsc_row_button', 'n_clicks_timestamp')],
-    [State('ticker_symbol', 'value'),
-     State('date_picker', 'start_date'),
-     State('date_picker', 'end_date'),
-     State('safety_margin', 'value')],
+    [State('intermediate_stock_value', 'children'),
+     State('safety_margin', 'value'),
+     State('gsc_key_number_table', 'data')],
     prevent_initial_call=True
 )
-def update_key_numbers(calculate_button_timestamp, gsc_key_number_table_timestamp,
-                       add_gsc_row_button_timestamp, ticker_symbol_value,
-                       start_date, end_date, safety_margin):
-    rows = pd.DataFrame()
+def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timestamp, intermediate_stock_value, safety_margin, rows):
 
-    for ticker in ticker_symbol_value:
-        equity = Stock(ticker, start_date, end_date, safety_margin)
-        equity.update_source()
-        equity.update_response()
-        equity.update_dcf_data()
-        equity.update_gsc_data()
-        rows = rows.append(equity.gsc_key_numbers)
-    return rows.to_dict('records')
+    if calculate_gsc_button_timestamp >= add_gsc_row_button_timestamp:
+        equity_list = jsonpickle.decode(intermediate_stock_value)
+
+        rows = pd.DataFrame()
+        for equity in equity_list:
+            extra = pd.DataFrame({'total_liabilities': [equity.total_liabilities],
+                                  'market_cap': [equity.market_cap],
+                                  'enterprise_value': [equity.enterprise_value]})
+            combined = pd.concat([extra, equity.gsc_key_numbers], axis=1)
+            rows = pd.concat([rows, combined], axis=0)
+        return rows.to_dict('records')
+
+    elif add_gsc_row_button_timestamp > calculate_gsc_button_timestamp:
+        rows.append({'symbol': '',
+                     '1_capital_employed_all_cash_sub_1_yr': '',
+                     '1_capital_employed_all_cash_sub_2_yr': '',
+                     '1_capital_employed_no_cash_sub_1_yr': '',
+                     '1_capital_employed_no_cash_sub_2_yr': '',
+                     '2_operating_income_1_yr': '',
+                     '2_operating_income_2_yr': '',
+                     '3_FCF_1_yr': '',
+                     '3_FCF_2_yr': '',
+                     '4_BV_1_yr': '',
+                     '4_BV_2_yr': '',
+                     '5_TBV_1_yr': '',
+                     '5_TBV_2_yr': '',
+                     '6_fully_diluted_shares_1_yr': '',
+                     '6_fully_diluted_shares_2_yr': '',
+                     'total_liabilities': '',
+                     'market_cap': '',
+                     'enterprise_value': ''})
+        return rows
+
+
+@ app.callback(
+    Output('gsc_ratio_table', 'data'),
+    [Input('gsc_key_number_table', 'data_timestamp')],
+    [State('gsc_key_number_table', 'data')]
+)
+def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data):
+    #if gsc_key_number_table_timestamp > 0:
+        return_rows = pd.DataFrame()
+        for row_idx, row in enumerate(gsc_key_number_table_data):
+            ratio_dict = calculate_gsc_ratios(row['1_capital_employed_all_cash_sub_1_yr'],
+                                              row['1_capital_employed_all_cash_sub_2_yr'],
+                                              row['1_capital_employed_no_cash_sub_1_yr'],
+                                              row['1_capital_employed_no_cash_sub_2_yr'],
+                                              row['2_operating_income_1_yr'],
+                                              row['2_operating_income_2_yr'],
+                                              row['3_FCF_1_yr'],
+                                              row['3_FCF_2_yr'],
+                                              row['4_BV_1_yr'],
+                                              row['4_BV_2_yr'],
+                                              row['5_TBV_1_yr'],
+                                              row['5_TBV_2_yr'],
+                                              row['6_fully_diluted_shares_1_yr'],
+                                              row['6_fully_diluted_shares_2_yr'],
+                                              row['total_liabilities'],
+                                              row['market_cap'],
+                                              row['enterprise_value']
+                                              )
+
+            return_row = pd.DataFrame({'symbol': [row['symbol']],
+                                       '1_ROCE_all_cash_sub': [ratio_dict['ROCE_all_cash_sub']],
+                                       '1_ROCE_no_cash_sub': [ratio_dict['ROCE_no_cash_sub']],
+                                       '2_FCFROCE_all_cash_sub': [ratio_dict['FCFROCE_all_cash_sub']],
+                                       '2_FCFROCE_no_cash_sub': [ratio_dict['FCFROCE_no_cash_sub']],
+                                       '3_d_OI_FDS_ratio': [ratio_dict['d_OI_FDS_ratio']],
+                                       '4_d_FCF_FDS_ratio': [ratio_dict['d_FCF_FDS_ratio']],
+                                       '5_d_BV_FDS_ratio': [ratio_dict['d_BV_FDS_ratio']],
+                                       '6_d_TBV_FDS_ratio': [ratio_dict['d_TBV_FDS_ratio']],
+                                       '7_le_ratio': [ratio_dict['le_ratio']],
+                                       '8_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
+                                       '9_EV_OI_ratio': [ratio_dict['EV_OI_ratio']],
+                                       '10_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
+                                       '11_MCAP_TBV_ratio': [ratio_dict['MCAP_TBV_ratio']]
+                                       })
+            return_rows = pd.concat([return_rows, return_row], axis=0)
+
+        return return_rows.to_dict('records')
 
 
 if __name__ == '__main__':
-    app.run_server(port=8500)
+    app.run_server(port=8500,debug=True, dev_tools_ui=True, dev_tools_props_check=False)

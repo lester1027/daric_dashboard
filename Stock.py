@@ -240,10 +240,10 @@ class Stock:
         # dcf Figure 12: Total liabilities
         # use the most recent quarter
         try:
-            self.total_liab = self.response_balance_quarter[0]["totalLiabilities"]
+            self.total_liabilities = self.response_balance_quarter[0]["totalLiabilities"]
         except Exception as e:
-            print('[ERROR] total_liab: ', e)
-            self.total_liab = self.epsilon
+            print('[ERROR] total_liabilities: ', e)
+            self.total_liabilities = self.epsilon
             self.error_flag = True
 
         # dcf Figure 13: Total cash and cash equivalents
@@ -278,7 +278,7 @@ class Stock:
             self.long_term_int_rate,
             self.market_cap,
             self.mv_debt,
-            self.total_liab,
+            self.total_liabilities,
             self.cce,
             self.gdp_growth_rate)
 
@@ -310,7 +310,7 @@ class Stock:
                   '9_Estimate_Interest_Rate': [self.long_term_int_rate],
                   '10_Market_Value_of_Equity': [self.market_cap],
                   '11_Market_Value_of_Debt': [self.mv_debt],
-                  '12_Total_Liabilities': [self.total_liab],
+                  '12_Total_Liabilities': [self.total_liabilities],
                   '13_Cash_&_Cash_Equivalents': [self.cce],
                   '14_GDP_Growth_Rate': [self.gdp_growth_rate]})
 
@@ -367,6 +367,10 @@ class Stock:
         self.fully_diluted_shares_2_yr = self.response_income[0]['weightedAverageShsOutDil']
         self.fully_diluted_shares_1_yr = self.response_income[1]['weightedAverageShsOutDil']
 
+
+
+
+
         # GSC return ROCE
         self.ROCE_all_cash_sub = self.operating_income_2_yr / \
             self.capital_employed_all_cash_sub_2_yr
@@ -379,12 +383,12 @@ class Stock:
         self.FCFROCE_no_cash_sub = self.FCF_2_yr/self.capital_employed_no_cash_sub_2_yr
 
         # GSC growth d_OI_FDS_ratio
-        self.d_OI_FDS_ratio = ((self.operating_income_2_yr/self.fully_diluted_shares_2_yr)-(self.operating_income_1_yr /
-                                                                                            self.fully_diluted_shares_1_yr))/(self.operating_income_1_yr/self.fully_diluted_shares_1_yr)
+        self.d_OI_FDS_ratio = ((self.operating_income_2_yr/self.fully_diluted_shares_2_yr)-(
+            self.operating_income_1_yr / self.fully_diluted_shares_1_yr))/(self.operating_income_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_FCF_FDS_ratio
-        self.d_FCF_FDS_ratio = ((self.FCF_2_yr/self.fully_diluted_shares_2_yr)-(
-            self.FCF_1_yr/self.fully_diluted_shares_1_yr))/(self.FCF_1_yr/self.fully_diluted_shares_1_yr)
+        self.d_FCF_FDS_ratio = ((self.FCF_2_yr/self.fully_diluted_shares_2_yr) -
+                                (self.FCF_1_yr/self.fully_diluted_shares_1_yr))/(self.FCF_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_BV_FDS_ratio
         self.d_BV_FDS_ratio = ((self.BV_2_yr/self.fully_diluted_shares_2_yr)-(
@@ -395,7 +399,7 @@ class Stock:
             self.TBV_1_yr/self.fully_diluted_shares_1_yr))/(self.TBV_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC le_ratio
-        self.le_ratio = self.total_liab/self.BV_2_yr
+        self.le_ratio = self.total_liabilities/self.BV_2_yr
 
         # GSC price MCAP_FCF_ratio
         self.MCAP_FCF_ratio = self.market_cap/self.FCF_2_yr
@@ -412,20 +416,20 @@ class Stock:
 
         self.gsc_key_numbers = pd.DataFrame(
             data={'symbol': [self.symbol],
-                  '1_cap_em_all_cash_sub_1_yr': [self.capital_employed_all_cash_sub_1_yr],
-                  '1_cap_em_all_cash_sub_2_yr': [self.capital_employed_all_cash_sub_2_yr], 
-                  '1_cap_em_no_cash_sub_1_yr':[self.capital_employed_no_cash_sub_1_yr],
-                  '1_cap_em_no_cash_sub_2_yr':[self.capital_employed_no_cash_sub_2_yr],
-                  '2_operating_income_1_yr':[self.operating_income_1_yr],
-                  '2_operating_income_2_yr':[self.operating_income_2_yr],
-                  '3_free_cash_flow_1_yr':[self.FCF_1_yr],
-                  '3_free_cash_flow_2_yr':[self.FCF_2_yr],
-                  '4_book_value_1_yr':[self.BV_1_yr],
-                  '4_book_value_2_yr':[self.BV_2_yr],
-                  '5_tangible_book_value_1_yr':[self.TBV_1_yr],
-                  '5_tangible_book_value_2_yr':[self.TBV_2_yr],
-                  '6_fully_diluted_shares_1_yr':[self.fully_diluted_shares_1_yr],
-                  '6_fully_diluted_shares_2_yr':[self.fully_diluted_shares_2_yr]}
+                  '1_capital_employed_all_cash_sub_1_yr': [self.capital_employed_all_cash_sub_1_yr],
+                  '1_capital_employed_all_cash_sub_2_yr': [self.capital_employed_all_cash_sub_2_yr],
+                  '1_capital_employed_no_cash_sub_1_yr': [self.capital_employed_no_cash_sub_1_yr],
+                  '1_capital_employed_no_cash_sub_2_yr': [self.capital_employed_no_cash_sub_2_yr],
+                  '2_operating_income_1_yr': [self.operating_income_1_yr],
+                  '2_operating_income_2_yr': [self.operating_income_2_yr],
+                  '3_FCF_1_yr': [self.FCF_1_yr],
+                  '3_FCF_2_yr': [self.FCF_2_yr],
+                  '4_BV_1_yr': [self.BV_1_yr],
+                  '4_BV_2_yr': [self.BV_2_yr],
+                  '5_TBV_1_yr': [self.TBV_1_yr],
+                  '5_TBV_2_yr': [self.TBV_2_yr],
+                  '6_fully_diluted_shares_1_yr': [self.fully_diluted_shares_1_yr],
+                  '6_fully_diluted_shares_2_yr': [self.fully_diluted_shares_2_yr]}
         )
 
         return self
