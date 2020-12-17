@@ -830,4 +830,4 @@ def update_ratios(gsc_key_number_table_timestamp_data,gsc_key_number_table_times
 
 
 if __name__ == '__main__':
-    app.run_server(port=8500,debug=True, dev_tools_ui=True, dev_tools_props_check=False)
+    app.run_server(port=8500,debug=False, dev_tools_ui=False, dev_tools_props_check=False)
