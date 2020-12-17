@@ -26,7 +26,7 @@ class Stock:
                 'financial_ratios': 'https://financialmodelingprep.com/api/v3/ratios/{symbol}?apikey={api_key}',
 
                 'gdp_growth_rate': 'https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate',
-                'enterprise_value':'https://financialmodelingprep.com/api/v3/enterprise-values/{symbol}?limit={limit}&apikey={api_key}'}
+                'enterprise_value': 'https://financialmodelingprep.com/api/v3/enterprise-values/{symbol}?limit={limit}&apikey={api_key}'}
 
     def __init__(self, symbol, start_date, end_date, margin):
         self.symbol = symbol
@@ -38,7 +38,6 @@ class Stock:
         self.epsilon = 9999999999
         self.error_flag = False
 
-    
     def _get_f_url(self, url, format=False):
         # a private function to construct the URLs with the input symbol
         if format:
@@ -52,50 +51,67 @@ class Stock:
         self.url_company_quote = self._get_f_url('company_quote', format=True)
         self.url_profile = self._get_f_url('profile', format=True)
 
-        self.url_cashflow_quarter = self._get_f_url('cashflow_quarter', format=True)
+        self.url_cashflow_quarter = self._get_f_url(
+            'cashflow_quarter', format=True)
 
         self.url_cashflow = self._get_f_url('cashflow', format=True)
         self.url_income = self._get_f_url('income', format=True)
         self.url_balance = self._get_f_url('balance', format=True)
 
-        self.url_balance_quarter = self._get_f_url('balance_quarter', format=True)
-        
-        self.url_financial_growth = self._get_f_url('financial_growth', format=True)
+        self.url_balance_quarter = self._get_f_url(
+            'balance_quarter', format=True)
 
-        self.url_enterprise_value = self._get_f_url('enterprise_value',format=True)
+        self.url_financial_growth = self._get_f_url(
+            'financial_growth', format=True)
+
+        self.url_enterprise_value = self._get_f_url(
+            'enterprise_value', format=True)
 
         self.url_gov_bonds = self._get_f_url('gov_bonds', format=False)
 
         self.url_risk_premium = self._get_f_url('risk_premium', format=False)
 
-        self.url_financial_ratios = self._get_f_url('financial_ratios', format=True)
+        self.url_financial_ratios = self._get_f_url(
+            'financial_ratios', format=True)
 
-        self.url_gdp_growth_rate = self._get_f_url('gdp_growth_rate', format=False)
-
+        self.url_gdp_growth_rate = self._get_f_url(
+            'gdp_growth_rate', format=False)
 
     def update_response(self):
-        # upadte the response of the request from the web 
-        self.response_profile = requests.request('GET',self.url_profile).json()
-        self.response_company_quote = requests.request('GET',self.url_company_quote).json()
-        self.response_price_history = requests.request("GET", self.url_price_history).json()['historical']
-        self.response_balance = requests.request('GET',self.url_balance).json()
-        self.response_balance_quarter = requests.request('GET',self.url_balance_quarter).json()
-        self.response_income = requests.request('GET',self.url_income).json()
-        self.response_cashflow_quarter = requests.request('GET', self.url_cashflow_quarter).json()
+        # upadte the response of the request from the web
+        self.response_profile = requests.request(
+            'GET', self.url_profile).json()
+        self.response_company_quote = requests.request(
+            'GET', self.url_company_quote).json()
+        self.response_price_history = requests.request(
+            "GET", self.url_price_history).json()['historical']
+        self.response_balance = requests.request(
+            'GET', self.url_balance).json()
+        self.response_balance_quarter = requests.request(
+            'GET', self.url_balance_quarter).json()
+        self.response_income = requests.request('GET', self.url_income).json()
+        self.response_cashflow_quarter = requests.request(
+            'GET', self.url_cashflow_quarter).json()
 
-        self.response_cashflow = requests.request('GET', self.url_cashflow).json()
-        self.response_financial_growth = requests.request('GET',self.url_financial_growth).json()
+        self.response_cashflow = requests.request(
+            'GET', self.url_cashflow).json()
+        self.response_financial_growth = requests.request(
+            'GET', self.url_financial_growth).json()
         self.response_risk_free = pd.read_html(self.url_gov_bonds)[0]
 
-        self.response_risk_premium = pd.read_html(self.url_risk_premium, header=0)[0]
-        self.response_financial_ratios = requests.request('GET',self.url_financial_ratios).json()
-        self.response_gdp_growth_rate = pd.read_html(self.url_gdp_growth_rate)[1]
+        self.response_risk_premium = pd.read_html(
+            self.url_risk_premium, header=0)[0]
+        self.response_financial_ratios = requests.request(
+            'GET', self.url_financial_ratios).json()
+        self.response_gdp_growth_rate = pd.read_html(
+            self.url_gdp_growth_rate)[1]
 
-        self.response_enterprise_value = requests.request('GET',self.url_enterprise_value).json()
-
+        self.response_enterprise_value = requests.request(
+            'GET', self.url_enterprise_value).json()
 
     def update_price(self):
-        self.response_price_history = requests.request("GET", self.url_price_history).json()['historical']
+        self.response_price_history = requests.request(
+            "GET", self.url_price_history).json()['historical']
         # price history
         self.price_history = pd.DataFrame(self.response_price_history)
         self.selected_price_history = self.price_history[(
@@ -105,14 +121,15 @@ class Stock:
         # dcf figure 1: TTM FCF
         try:
             df_response_cashflow = pd.DataFrame(self.response_cashflow)
-            df_response_cashflow_quarter = pd.DataFrame(self.response_cashflow_quarter)
+            df_response_cashflow_quarter = pd.DataFrame(
+                self.response_cashflow_quarter)
             # if the most recent annual cashflow statement is the mose recent cashflow statement
             if df_response_cashflow.loc[0, 'date'] == df_response_cashflow_quarter.loc[0, 'date']:
                 self.ttm_FCF = df_response_cashflow.loc[0, 'freeCashFlow']
             # if there are quarterly cashflow statements released after the latest annual cashflow statement
             else:
                 # use the free cash flow in the most recent annual cashflow statement
-                # and add all those from more recently quarterly cashflow statement 
+                # and add all those from more recently quarterly cashflow statement
                 # then minus those from corrseponding quarterly cashflow from the previous year
                 self.offset = df_response_cashflow_quarter.index[df_response_cashflow_quarter['date'] == df_response_cashflow.loc[0, 'date']].tolist()[
                     0]
@@ -138,7 +155,8 @@ class Stock:
 
         # dcf Figure 3: Long term growth rate
         try:
-            self.long_term_growth_rate = self.response_financial_growth[0]["dividendsperShareGrowth"]
+            self.long_term_growth_rate = self.response_financial_growth[
+                0]["dividendsperShareGrowth"]
         except Exception as e:
             print('[ERROR] long_term_growth_rate: ', e)
             self.long_term_growth_rate = self.epsilon
@@ -191,7 +209,8 @@ class Stock:
         try:
             self.interest_expense = self.response_income[0]['interestExpense']
 
-            self.long_term_debt = float(self.response_balance[0]['longTermDebt'])
+            self.long_term_debt = float(
+                self.response_balance[0]['longTermDebt'])
 
             self.long_term_int_rate = self.interest_expense/self.long_term_debt
         except Exception as e:
@@ -221,10 +240,10 @@ class Stock:
         # dcf Figure 12: Total liabilities
         # use the most recent quarter
         try:
-            self.total_liab = self.response_balance_quarter[0]["totalLiabilities"]
+            self.total_liabilities = self.response_balance_quarter[0]["totalLiabilities"]
         except Exception as e:
-            print('[ERROR] total_liab: ', e)
-            self.total_liab = self.epsilon
+            print('[ERROR] total_liabilities: ', e)
+            self.total_liabilities = self.epsilon
             self.error_flag = True
 
         # dcf Figure 13: Total cash and cash equivalents
@@ -259,7 +278,7 @@ class Stock:
             self.long_term_int_rate,
             self.market_cap,
             self.mv_debt,
-            self.total_liab,
+            self.total_liabilities,
             self.cce,
             self.gdp_growth_rate)
 
@@ -279,7 +298,7 @@ class Stock:
             data={'Symbol': [self.symbol],
                   'Comparison': [self.comp],
                   'Intrinsic_Value_per_Share_with_Safety_Margin': [self.intrinsic_value_per_share_safe],
-                  'Intrinsic_Value_per_Share': [self.intrinsic_value_per_share],                  
+                  'Intrinsic_Value_per_Share': [self.intrinsic_value_per_share],
                   '1_TTM_Free_Cash_Flow': [self.ttm_FCF],
                   '2_Shares_Outstanding': [self.shares_outstanding],
                   '3_Long_Term_Growth_Rate': [self.long_term_growth_rate],
@@ -291,7 +310,7 @@ class Stock:
                   '9_Estimate_Interest_Rate': [self.long_term_int_rate],
                   '10_Market_Value_of_Equity': [self.market_cap],
                   '11_Market_Value_of_Debt': [self.mv_debt],
-                  '12_Total_Liabilities': [self.total_liab],
+                  '12_Total_Liabilities': [self.total_liabilities],
                   '13_Cash_&_Cash_Equivalents': [self.cce],
                   '14_GDP_Growth_Rate': [self.gdp_growth_rate]})
 
@@ -301,24 +320,30 @@ class Stock:
         self.accounts_payable_2_yr = self.response_balance[0]['accountPayables']
         self.total_current_liabilities_2_yr = self.response_balance[0]['totalCurrentLiabilities']
         self.short_term_debt_2_yr = self.response_balance[0]['shortTermDebt']
-        self.non_interest_bearing_current_liabilities_2_yr = self.total_current_liabilities_2_yr - self.short_term_debt_2_yr
+        self.non_interest_bearing_current_liabilities_2_yr = self.total_current_liabilities_2_yr - \
+            self.short_term_debt_2_yr
         self.cce_2_yr = self.response_balance_quarter[0]["cashAndCashEquivalents"]
-        
+
         self.total_assets_1_yr = self.response_balance[1]['totalAssets']
         self.accounts_payable_1_yr = self.response_balance[1]['accountPayables']
         self.total_current_liabilities_1_yr = self.response_balance[1]['totalCurrentLiabilities']
         self.short_term_debt_1_yr = self.response_balance[1]['shortTermDebt']
-        self.non_interest_bearing_current_liabilities_1_yr = self.total_current_liabilities_1_yr - self.short_term_debt_1_yr
+        self.non_interest_bearing_current_liabilities_1_yr = self.total_current_liabilities_1_yr - \
+            self.short_term_debt_1_yr
         self.cce_1_yr = self.response_balance_quarter[1]["cashAndCashEquivalents"]
-        
+
         # all cash subtracted
-        self.captial_employed_all_cash_sub_2_yr = self.total_assets_2_yr - self.cce_2_yr - self.non_interest_bearing_current_liabilities_2_yr
-        self.captial_employed_all_cash_sub_1_yr = self.total_assets_1_yr - self.cce_1_yr - self.non_interest_bearing_current_liabilities_1_yr
+        self.capital_employed_all_cash_sub_2_yr = self.total_assets_2_yr - \
+            self.cce_2_yr - self.non_interest_bearing_current_liabilities_2_yr
+        self.capital_employed_all_cash_sub_1_yr = self.total_assets_1_yr - \
+            self.cce_1_yr - self.non_interest_bearing_current_liabilities_1_yr
 
         # no cash subtracted
-        self.captial_employed_no_cash_sub_2_yr = self.total_assets_2_yr - self.non_interest_bearing_current_liabilities_2_yr
-        self.captial_employed_no_cash_sub_1_yr = self.total_assets_1_yr - self.non_interest_bearing_current_liabilities_1_yr
-        
+        self.capital_employed_no_cash_sub_2_yr = self.total_assets_2_yr - \
+            self.non_interest_bearing_current_liabilities_2_yr
+        self.capital_employed_no_cash_sub_1_yr = self.total_assets_1_yr - \
+            self.non_interest_bearing_current_liabilities_1_yr
+
         # GSC key number 2 Operating Income
         self.operating_income_2_yr = self.response_income[0]['operatingIncome']
         self.operating_income_1_yr = self.response_income[1]['operatingIncome']
@@ -342,28 +367,39 @@ class Stock:
         self.fully_diluted_shares_2_yr = self.response_income[0]['weightedAverageShsOutDil']
         self.fully_diluted_shares_1_yr = self.response_income[1]['weightedAverageShsOutDil']
 
+
+
+
+
         # GSC return ROCE
-        self.ROCE_all_cash_sub = self.operating_income_2_yr/self.captial_employed_all_cash_sub_2_yr
-        self.ROCE_no_cash_sub = self.operating_income_2_yr/self.captial_employed_no_cash_sub_2_yr
+        self.ROCE_all_cash_sub = self.operating_income_2_yr / \
+            self.capital_employed_all_cash_sub_2_yr
+        self.ROCE_no_cash_sub = self.operating_income_2_yr / \
+            self.capital_employed_no_cash_sub_2_yr
 
         # GSC return FCFROCE
-        self.FCFROCE_all_cash_sub = self.FCF_2_yr/self.captial_employed_all_cash_sub_2_yr
-        self.FCFROCE_no_cash_sub = self.FCF_2_yr/self.captial_employed_no_cash_sub_2_yr
+        self.FCFROCE_all_cash_sub = self.FCF_2_yr / \
+            self.capital_employed_all_cash_sub_2_yr
+        self.FCFROCE_no_cash_sub = self.FCF_2_yr/self.capital_employed_no_cash_sub_2_yr
 
         # GSC growth d_OI_FDS_ratio
-        self.d_OI_FDS_ratio = ((self.operating_income_2_yr/self.fully_diluted_shares_2_yr)-(self.operating_income_1_yr/self.fully_diluted_shares_1_yr))/(self.operating_income_1_yr/self.fully_diluted_shares_1_yr)
+        self.d_OI_FDS_ratio = ((self.operating_income_2_yr/self.fully_diluted_shares_2_yr)-(
+            self.operating_income_1_yr / self.fully_diluted_shares_1_yr))/(self.operating_income_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_FCF_FDS_ratio
-        self.d_FCF_FDS_ratio = ((self.FCF_2_yr/self.fully_diluted_shares_2_yr)-(self.FCF_1_yr/self.fully_diluted_shares_1_yr))/(self.FCF_1_yr/self.fully_diluted_shares_1_yr)
+        self.d_FCF_FDS_ratio = ((self.FCF_2_yr/self.fully_diluted_shares_2_yr) -
+                                (self.FCF_1_yr/self.fully_diluted_shares_1_yr))/(self.FCF_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_BV_FDS_ratio
-        self.d_BV_FDS_ratio = ((self.BV_2_yr/self.fully_diluted_shares_2_yr)-(self.BV_1_yr/self.fully_diluted_shares_1_yr))/(self.BV_1_yr/self.fully_diluted_shares_1_yr)
+        self.d_BV_FDS_ratio = ((self.BV_2_yr/self.fully_diluted_shares_2_yr)-(
+            self.BV_1_yr/self.fully_diluted_shares_1_yr))/(self.BV_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_TBV_FDS_ratio
-        self.d_TBV_FDS_ratio = ((self.TBV_2_yr/self.fully_diluted_shares_2_yr)-(self.TBV_1_yr/self.fully_diluted_shares_1_yr))/(self.TBV_1_yr/self.fully_diluted_shares_1_yr)
+        self.d_TBV_FDS_ratio = ((self.TBV_2_yr/self.fully_diluted_shares_2_yr)-(
+            self.TBV_1_yr/self.fully_diluted_shares_1_yr))/(self.TBV_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC le_ratio
-        self.le_ratio = self.total_liab/self.BV_2_yr
+        self.le_ratio = self.total_liabilities/self.BV_2_yr
 
         # GSC price MCAP_FCF_ratio
         self.MCAP_FCF_ratio = self.market_cap/self.FCF_2_yr
@@ -377,7 +413,25 @@ class Stock:
 
         # GSC price MCAP_TBV ratio
         self.MCAP_TBV_ratio = self.market_cap/self.TBV_2_yr
-        
+
+        self.gsc_key_numbers = pd.DataFrame(
+            data={'symbol': [self.symbol],
+                  '1_capital_employed_all_cash_sub_1_yr': [self.capital_employed_all_cash_sub_1_yr],
+                  '1_capital_employed_all_cash_sub_2_yr': [self.capital_employed_all_cash_sub_2_yr],
+                  '1_capital_employed_no_cash_sub_1_yr': [self.capital_employed_no_cash_sub_1_yr],
+                  '1_capital_employed_no_cash_sub_2_yr': [self.capital_employed_no_cash_sub_2_yr],
+                  '2_operating_income_1_yr': [self.operating_income_1_yr],
+                  '2_operating_income_2_yr': [self.operating_income_2_yr],
+                  '3_FCF_1_yr': [self.FCF_1_yr],
+                  '3_FCF_2_yr': [self.FCF_2_yr],
+                  '4_BV_1_yr': [self.BV_1_yr],
+                  '4_BV_2_yr': [self.BV_2_yr],
+                  '5_TBV_1_yr': [self.TBV_1_yr],
+                  '5_TBV_2_yr': [self.TBV_2_yr],
+                  '6_fully_diluted_shares_1_yr': [self.fully_diluted_shares_1_yr],
+                  '6_fully_diluted_shares_2_yr': [self.fully_diluted_shares_2_yr]}
+        )
+
         return self
 
 
@@ -385,8 +439,15 @@ class Stock:
 '''
 foo=Stock('AAPL','2000-10-27','2010-10-27',margin=20)
 foo.update_source()
+foo.update_response()
 foo.update_price()
-foo.update_data()
-(foo.pv_discounted_FCF)/foo.shares_outstanding
-foo.intrinsic_value_per_share
+foo.update_dcf_data()
+foo.update_gsc_data()
+
+bar=Stock('MSFT','2000-10-27','2010-10-27',margin=20)
+bar.update_source()
+bar.update_response()
+bar.update_price()
+bar.update_dcf_data()
+bar.update_gsc_data()
 '''

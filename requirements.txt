@@ -30,6 +30,7 @@ gunicorn==20.0.4
 idna==2.8
 itsdangerous==1.1.0
 Jinja2==2.11.1
+jsonpickle==1.4.2
 lazy-object-proxy==1.4.3
 lxml==4.5.0
 MarkupSafe==1.1.1
