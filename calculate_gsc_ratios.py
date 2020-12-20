@@ -1,6 +1,5 @@
 import numpy as np
 epsilon = 9999999999
-error_flag = False
 
 
 def calculate_gsc_ratios(capital_employed_all_cash_sub_1_yr, capital_employed_all_cash_sub_2_yr,

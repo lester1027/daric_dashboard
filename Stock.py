@@ -4,7 +4,6 @@ from calculate_intrinsic_value import calculate_intrinsic_value
 import requests
 
 
-
 class Stock:
     '''
     a class variable to store all the URLs to be used
@@ -37,8 +36,6 @@ class Stock:
         self.debt_premium = 1.3
         # the number to indicate a financial figure that cannot be acquired successfully
         self.epsilon = 9999999999
-        # the error flag for the error numbers
-        self.error_flag = False
 
     def _get_f_url(self, url, format=False):
         # a private function to construct the URLs with the input symbol
@@ -141,7 +138,7 @@ class Stock:
                             'FCF_2_yr': None if len(self.response_cashflow) < 1 else self.response_cashflow[0]['freeCashFlow'],
                             'FCF_1_yr': None if len(self.response_cashflow) < 2 else self.response_cashflow[1]['freeCashFlow'],
                             'BV_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['totalStockholdersEquity'],
-                            'BV_1_yr' : None if len(self.response_balance) < 2 else self.response_balance[1]['totalStockholdersEquity'],
+                            'BV_1_yr': None if len(self.response_balance) < 2 else self.response_balance[1]['totalStockholdersEquity'],
                             'goodwill_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['goodwill'],
                             'goodwill_1_yr': None if len(self.response_balance) < 2 else self.response_balance[1]['goodwill'],
                             'fully_diluted_shares_2_yr': None if len(self.response_income) < 1 else self.response_income[0]['weightedAverageShsOutDil'],
@@ -152,7 +149,7 @@ class Stock:
             # if the value is NoneType
             if value is None:
                 setattr(self, number, self.epsilon)
-                self.error_flag = True
+
             # if a concrete number is successfully returned
             else:
                 setattr(self, number, value)
@@ -191,7 +188,6 @@ class Stock:
         except Exception as e:
             print('[ERROR] ttm_FCF: ', e)
             self.ttm_FCF = self.epsilon
-            self.error_flag = True
 
         # dcf Figure 2: Total number of shares outstanding
         self.shares_outstanding = self.shares_outstanding
@@ -214,7 +210,6 @@ class Stock:
         except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] risk_free_rate: ', e)
             self.risk_free_rate = self.epsilon
-            self.error_flag = True
 
         # dcf Figure 7: Market risk premium
         try:
@@ -224,7 +219,6 @@ class Stock:
         except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] risk_premium: ', e)
             self.risk_premium = self.epsilon
-            self.error_flag = True
 
         # dcf Figure 8: Business tax rate
         self.tax_rate = self.tax_rate
@@ -234,11 +228,11 @@ class Stock:
         if self.long_term_debt == 0:
             print('[ERROR] long_term_int_rate: ZeroDivisionError')
             self.long_term_int_rate = self.epsilon
-            self.error_flag = True
+
         # if any of the numbers involved is an error number
         elif self.interest_expense == self.epsilon or self.long_term_debt == self.epsilon:
             self.long_term_int_rate = self.epsilon
-            self.error_flag = True
+
         else:
             self.long_term_int_rate = self.interest_expense / float(self.long_term_debt)
 
@@ -247,9 +241,8 @@ class Stock:
 
         # dcf Figure 11: Market value of debt
         # use the most recent quarter
-        if self.total_debt == self.epsilon:
+        if self.total_debt == self.epsilon or self.debt_premium == self.epsilon:
             self.mv_debt == self.epsilon
-            self.error_flag == True
         else:
             self.mv_debt = (self.total_debt)*self.debt_premium
 
@@ -270,7 +263,6 @@ class Stock:
         except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] gdp_growth_rate: ', e)
             self.gdp_growth_rate = self.epsilon
-            self.error_flag = True
 
         # calculate the intrinsic value
         self.pv_discounted_FCF, self.terminal_value, self.wacc, self.intrinsic_value_per_share = calculate_intrinsic_value(
@@ -293,7 +285,20 @@ class Stock:
             (1-self.safety_margin/100)
 
         # check if there is any error in the aquisition of financial figures first
-        if self.error_flag == True:
+        if self.epsilon in [self.ttm_FCF,
+                            self.shares_outstanding,
+                            self.long_term_growth_rate,
+                            self.current_share_price,
+                            self.stock_beta,
+                            self.risk_free_rate,
+                            self.risk_premium,
+                            self.tax_rate,
+                            self.long_term_int_rate,
+                            self.market_cap,
+                            self.mv_debt,
+                            self.total_liabilities,
+                            self.cce,
+                            self.gdp_growth_rate]:
             self.comp = 'Error'
         # determine if the stock is over-valued or under-valued
         elif self.current_share_price <= self.intrinsic_value_per_share_safe:
