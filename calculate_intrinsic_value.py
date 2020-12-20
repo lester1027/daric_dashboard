@@ -1,4 +1,6 @@
 import numpy as np
+epsilon = 9999999999
+error_flag = False
 
 
 def calculate_intrinsic_value(ttm_FCF, shares_outstanding, long_term_growth_rate, current_share_price,
@@ -9,20 +11,78 @@ def calculate_intrinsic_value(ttm_FCF, shares_outstanding, long_term_growth_rate
     This is used later for both after acquiring financial figures and
     after changing values in the interactive table.
     '''
-    r_e = risk_free_rate+stock_beta*risk_premium
-    r_d = long_term_int_rate*(1-tax_rate)
-    wacc = (market_cap)/(market_cap+mv_debt) * \
-        r_e+(mv_debt)/(market_cap+mv_debt)*r_d
+    try:
+        r_e = risk_free_rate+stock_beta*risk_premium
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] r_e: ', e)
+        r_e = epsilon
+        error_flag = True
 
-    projected_FCF = np.array(
-        [ttm_FCF*(1+long_term_growth_rate)**n for n in range(11)])
-    discount_fact = np.array([1/(1+wacc)**n for n in range(11)])
-    discounted_FCF = projected_FCF[1:]*discount_fact[1:]
-    pv_discounted_FCF = discounted_FCF.sum()
-    perpetuity_value = (
-        projected_FCF[-1]*(1+gdp_growth_rate))/(wacc-gdp_growth_rate)
-    terminal_value = perpetuity_value*discount_fact[-1]
-    intrinsic_value_per_share = (
-        pv_discounted_FCF+terminal_value+cce-total_liabilities)/shares_outstanding
+    try:
+        r_d = long_term_int_rate*(1-tax_rate)
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] r_d: ', e)
+        r_d = epsilon
+        error_flag = True
+
+    try:
+        wacc = (market_cap)/(market_cap+mv_debt) * \
+            r_e+(mv_debt)/(market_cap+mv_debt)*r_d
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] wacc: ', e)
+        wacc = epsilon
+        error_flag = True
+
+    try:
+        projected_FCF = np.array(
+            [ttm_FCF*(1+long_term_growth_rate)**n for n in range(11)])
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] projected_FCF: ', e)
+        projected_FCF = epsilon
+        error_flag = True
+
+    try:
+        discount_fact = np.array([1/(1+wacc)**n for n in range(11)])
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] discount_fact: ', e)
+        discount_fact = epsilon
+        error_flag = True
+
+    try:
+        discounted_FCF = projected_FCF[1:]*discount_fact[1:]
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] discounted_FCF: ', e)
+        discounted_FCF = epsilon
+        error_flag = True
+
+    try:
+        pv_discounted_FCF = discounted_FCF.sum()
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] pv_discounted_FCF: ', e)
+        pv_discounted_FCF = epsilon
+        error_flag = True
+
+    try:
+        perpetuity_value = (
+            projected_FCF[-1]*(1+gdp_growth_rate))/(wacc-gdp_growth_rate)
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] perpetuity_value: ', e)
+        perpetuity_value = epsilon
+        error_flag = True
+
+    try:
+        terminal_value = perpetuity_value*discount_fact[-1]
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] terminal_value: ', e)
+        terminal_value = epsilon
+        error_flag = True
+
+    try:
+        intrinsic_value_per_share = (
+            pv_discounted_FCF+terminal_value+cce-total_liabilities)/shares_outstanding
+    except (ZeroDivisionError, TypeError) as e:
+        print('[ERROR] intrinsic_value_per_share: ', e)
+        intrinsic_value_per_share = epsilon
+        error_flag = True
 
     return pv_discounted_FCF, terminal_value, wacc, intrinsic_value_per_share

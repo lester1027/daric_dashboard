@@ -4,6 +4,7 @@ from calculate_intrinsic_value import calculate_intrinsic_value
 import requests
 
 
+
 class Stock:
     '''
     a class variable to store all the URLs to be used
@@ -36,6 +37,7 @@ class Stock:
         self.debt_premium = 1.3
         # the number to indicate a financial figure that cannot be acquired successfully
         self.epsilon = 9999999999
+        # the error flag for the error numbers
         self.error_flag = False
 
     def _get_f_url(self, url, format=False):
@@ -51,8 +53,7 @@ class Stock:
         self.url_company_quote = self._get_f_url('company_quote', format=True)
         self.url_profile = self._get_f_url('profile', format=True)
 
-        self.url_cashflow_quarter = self._get_f_url(
-            'cashflow_quarter', format=True)
+        self.url_cashflow_quarter = self._get_f_url('cashflow_quarter', format=True)
 
         self.url_cashflow = self._get_f_url('cashflow', format=True)
         self.url_income = self._get_f_url('income', format=True)
@@ -109,6 +110,53 @@ class Stock:
         self.response_enterprise_value = requests.request(
             'GET', self.url_enterprise_value).json()
 
+    def update_number(self):
+        # get numbers directly from the response
+        # and handle them if the response is None
+
+        self.number_dict = {'shares_outstanding': None if len(self.response_company_quote) < 1 else self.response_company_quote[0]["sharesOutstanding"],
+                            'long_term_growth_rate': None if len(self.response_financial_growth) < 1 else self.response_financial_growth[0]["dividendsperShareGrowth"],
+                            'current_share_price': None if len(self.response_company_quote) < 1 else self.response_company_quote[0]['price'],
+                            'stock_beta': None if len(self.response_profile) < 1 else self.response_profile[0]['beta'],
+                            'tax_rate': None if len(self.response_financial_ratios) < 1 else self.response_financial_ratios[0]['effectiveTaxRate'],
+                            'interest_expense': None if len(self.response_income) < 1 else self.response_income[0]['interestExpense'],
+                            'long_term_debt': None if len(self.response_balance) < 1 else self.response_balance[0]['longTermDebt'],
+                            'market_cap': None if len(self.response_profile) < 1 else self.response_profile[0]['mktCap'],
+                            'total_debt': None if len(self.response_balance_quarter) < 1 else self.response_balance_quarter[0]['totalDebt'],
+                            'total_liabilities': None if len(self.response_balance_quarter) < 1 else self.response_balance_quarter[0]["totalLiabilities"],
+                            'cce': None if len(self.response_balance_quarter) < 1 else self.response_balance_quarter[0]["cashAndCashEquivalents"],
+
+                            'total_assets_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['totalAssets'],
+                            'accounts_payable_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['accountPayables'],
+                            'total_current_liabilities_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['totalCurrentLiabilities'],
+                            'short_term_debt_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['shortTermDebt'],
+                            'cce_2_yr': None if len(self.response_balance_quarter) < 1 else self.response_balance_quarter[0]["cashAndCashEquivalents"],
+                            'total_assets_1_yr': None if len(self.response_balance) < 2 else self.response_balance[1]['totalAssets'],
+                            'accounts_payable_1_yr': None if len(self.response_balance) < 2 else self.response_balance[1]['accountPayables'],
+                            'total_current_liabilities_1_yr': None if len(self.response_balance) < 2 else self.response_balance[1]['totalCurrentLiabilities'],
+                            'short_term_debt_1_yr': None if len(self.response_balance) < 2 else self.response_balance[1]['shortTermDebt'],
+                            'cce_1_yr': None if len(self.response_balance_quarter) < 2 else self.response_balance_quarter[1]["cashAndCashEquivalents"],
+                            'operating_income_2_yr': None if len(self.response_income) < 1 else self.response_income[0]['operatingIncome'],
+                            'operating_income_1_yr': None if len(self.response_income) < 2 else self.response_income[1]['operatingIncome'],
+                            'FCF_2_yr': None if len(self.response_cashflow) < 1 else self.response_cashflow[0]['freeCashFlow'],
+                            'FCF_1_yr': None if len(self.response_cashflow) < 2 else self.response_cashflow[1]['freeCashFlow'],
+                            'BV_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['totalStockholdersEquity'],
+                            'BV_1_yr' : None if len(self.response_balance) < 2 else self.response_balance[1]['totalStockholdersEquity'],
+                            'goodwill_2_yr': None if len(self.response_balance) < 1 else self.response_balance[0]['goodwill'],
+                            'goodwill_1_yr': None if len(self.response_balance) < 2 else self.response_balance[1]['goodwill'],
+                            'fully_diluted_shares_2_yr': None if len(self.response_income) < 1 else self.response_income[0]['weightedAverageShsOutDil'],
+                            'fully_diluted_shares_1_yr': None if len(self.response_income) < 2 else self.response_income[1]['weightedAverageShsOutDil'],
+                            'enterprise_value': None if len(self.response_enterprise_value) < 1 else self.response_enterprise_value[0]['enterpriseValue']}
+
+        for number, value in self.number_dict.items():
+            # if the value is NoneType
+            if value is None:
+                setattr(self, number, self.epsilon)
+                self.error_flag = True
+            # if a concrete number is successfully returned
+            else:
+                setattr(self, number, value)
+
     def update_price(self):
         self.response_price_history = requests.request(
             "GET", self.url_price_history).json()['historical']
@@ -146,44 +194,24 @@ class Stock:
             self.error_flag = True
 
         # dcf Figure 2: Total number of shares outstanding
-        try:
-            self.shares_outstanding = self.response_company_quote[0]["sharesOutstanding"]
-        except Exception as e:
-            print('[ERROR] shares_outstanding: ', e)
-            self.shares_outstanding = self.epsilon
-            self.error_flag = True
+        self.shares_outstanding = self.shares_outstanding
 
         # dcf Figure 3: Long term growth rate
-        try:
-            self.long_term_growth_rate = self.response_financial_growth[
-                0]["dividendsperShareGrowth"]
-        except Exception as e:
-            print('[ERROR] long_term_growth_rate: ', e)
-            self.long_term_growth_rate = self.epsilon
-            self.error_flag = True
+        self.long_term_growth_rate = self.long_term_growth_rate
 
         # dcf Figure 4: Current share price
-        try:
-            self.current_share_price = self.response_profile[0]['price']
-        except Exception as e:
-            print('[ERROR] current_share_price: ', e)
-            self.current_share_price = self.epsilon
-            self.error_flag = True
+        self.current_share_price = self.current_share_price
 
         # dcf Figure 5: Stock beta
-        try:
-            self.stock_beta = self.response_profile[0]['beta']
-        except Exception as e:
-            print('[ERROR] stock_beta: ', e)
-            self.stock_beta = self.epsilon
-            self.error_flag = True
+        self.stock_beta = self.stock_beta
 
         # dcf Figure 6: Risk free rate
         # 10-year government's bond
         try:
             self.risk_free_rate = float(
                 self.response_risk_free[self.response_risk_free['Country'] == 'United States']['10Y Yield'].values[0].strip('%'))/100
-        except Exception as e:
+
+        except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] risk_free_rate: ', e)
             self.risk_free_rate = self.epsilon
             self.error_flag = True
@@ -192,75 +220,54 @@ class Stock:
         try:
             self.risk_premium = float(
                 self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
-        except Exception as e:
+
+        except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] risk_premium: ', e)
             self.risk_premium = self.epsilon
             self.error_flag = True
 
         # dcf Figure 8: Business tax rate
-        try:
-            self.tax_rate = self.response_financial_ratios[0]['effectiveTaxRate']
-        except Exception as e:
-            print('[ERROR] tax_rate: ', e)
-            self.tax_rate = self.epsilon
-            self.error_flag = True
+        self.tax_rate = self.tax_rate
 
         # dcf Figure 9: Estimated long-term interest rate
-        try:
-            self.interest_expense = self.response_income[0]['interestExpense']
-
-            self.long_term_debt = float(
-                self.response_balance[0]['longTermDebt'])
-
-            self.long_term_int_rate = self.interest_expense/self.long_term_debt
-        except Exception as e:
-            print('[ERROR] long_term_int_rate: ', e)
+        # if the denominator is 0
+        if self.long_term_debt == 0:
+            print('[ERROR] long_term_int_rate: ZeroDivisionError')
             self.long_term_int_rate = self.epsilon
             self.error_flag = True
+        # if any of the numbers involved is an error number
+        elif self.interest_expense == self.epsilon or self.long_term_debt == self.epsilon:
+            self.long_term_int_rate = self.epsilon
+            self.error_flag = True
+        else:
+            self.long_term_int_rate = self.interest_expense / float(self.long_term_debt)
 
         # dcf Figure 10: Market value of equity
-        try:
-            self.market_cap = self.response_profile[0]['mktCap']
-        except Exception as e:
-            print('[ERROR] market_cap: ', e)
-            self.market_cap = self.epsilon
-            self.error_flag = True
+        self.market_cap = self.market_cap
 
         # dcf Figure 11: Market value of debt
         # use the most recent quarter
-        try:
-            self.total_debt = self.response_balance_quarter[0]['totalDebt']
-
+        if self.total_debt == self.epsilon:
+            self.mv_debt == self.epsilon
+            self.error_flag == True
+        else:
             self.mv_debt = (self.total_debt)*self.debt_premium
-        except Exception as e:
-            print('[ERROR] mv_debt: ', e)
-            self.mv_debt = self.epsilon
-            self.error_flag = True
 
         # dcf Figure 12: Total liabilities
         # use the most recent quarter
-        try:
-            self.total_liabilities = self.response_balance_quarter[0]["totalLiabilities"]
-        except Exception as e:
-            print('[ERROR] total_liabilities: ', e)
-            self.total_liabilities = self.epsilon
-            self.error_flag = True
+        self.total_liabilities = self.total_liabilities
 
         # dcf Figure 13: Total cash and cash equivalents
         # use the most recent quarter
-        try:
-            self.cce = self.response_balance_quarter[0]["cashAndCashEquivalents"]
-        except Exception as e:
-            print('[ERROR] cce: ', e)
-            self.cce = self.epsilon
-            self.error_flag = True
+        self.cce = self.cce
 
         # dcf Figure 14: GDP growth rate
         # the real GDP growth rate from 2013 to 2018
         try:
             self.gdp_growth_rate = float(
                 self.response_gdp_growth_rate[self.response_gdp_growth_rate['Country'] == 'United States']['Average GDP growthrate (%) 2013–2018'].values)/100
-        except Exception as e:
+
+        except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] gdp_growth_rate: ', e)
             self.gdp_growth_rate = self.epsilon
             self.error_flag = True
@@ -316,103 +323,193 @@ class Stock:
 
     def update_gsc_data(self):
         # GSC key number 1 Capital Employed
-        self.total_assets_2_yr = self.response_balance[0]['totalAssets']
-        self.accounts_payable_2_yr = self.response_balance[0]['accountPayables']
-        self.total_current_liabilities_2_yr = self.response_balance[0]['totalCurrentLiabilities']
-        self.short_term_debt_2_yr = self.response_balance[0]['shortTermDebt']
-        self.non_interest_bearing_current_liabilities_2_yr = self.total_current_liabilities_2_yr - \
-            self.short_term_debt_2_yr
-        self.cce_2_yr = self.response_balance_quarter[0]["cashAndCashEquivalents"]
+        if self.total_current_liabilities_2_yr == self.epsilon or self.short_term_debt_2_yr == self.epsilon:
+            self.non_interest_bearing_current_liabilities_2_yr = self.epsilon
+        else:
+            self.non_interest_bearing_current_liabilities_2_yr = self.total_current_liabilities_2_yr - \
+                self.short_term_debt_2_yr
 
-        self.total_assets_1_yr = self.response_balance[1]['totalAssets']
-        self.accounts_payable_1_yr = self.response_balance[1]['accountPayables']
-        self.total_current_liabilities_1_yr = self.response_balance[1]['totalCurrentLiabilities']
-        self.short_term_debt_1_yr = self.response_balance[1]['shortTermDebt']
-        self.non_interest_bearing_current_liabilities_1_yr = self.total_current_liabilities_1_yr - \
-            self.short_term_debt_1_yr
-        self.cce_1_yr = self.response_balance_quarter[1]["cashAndCashEquivalents"]
+        if self.total_current_liabilities_1_yr == self.epsilon or self.short_term_debt_1_yr == self.epsilon:
+            self.non_interest_bearing_current_liabilities_1_yr = self.epsilon
+        else:
+            self.non_interest_bearing_current_liabilities_1_yr = self.total_current_liabilities_1_yr - \
+                self.short_term_debt_1_yr
 
-        # all cash subtracted
-        self.capital_employed_all_cash_sub_2_yr = self.total_assets_2_yr - \
-            self.cce_2_yr - self.non_interest_bearing_current_liabilities_2_yr
-        self.capital_employed_all_cash_sub_1_yr = self.total_assets_1_yr - \
-            self.cce_1_yr - self.non_interest_bearing_current_liabilities_1_yr
+        # all cash subtracted'
+        if self.total_assets_2_yr == self.epsilon or self.cce_2_yr == self.epsilon or self.non_interest_bearing_current_liabilities_2_yr == self.epsilon:
+            self.capital_employed_all_cash_sub_2_yr = self.epsilon
+        else:
+            self.capital_employed_all_cash_sub_2_yr = self.total_assets_2_yr - \
+                self.cce_2_yr - self.non_interest_bearing_current_liabilities_2_yr
+
+        if self.total_assets_1_yr == self.epsilon or self.cce_1_yr == self.epsilon or self.non_interest_bearing_current_liabilities_1_yr:
+            self.capital_employed_all_cash_sub_1_yr = self.epsilon
+        else:
+            self.capital_employed_all_cash_sub_1_yr = self.total_assets_1_yr - \
+                self.cce_1_yr - self.non_interest_bearing_current_liabilities_1_yr
 
         # no cash subtracted
-        self.capital_employed_no_cash_sub_2_yr = self.total_assets_2_yr - \
-            self.non_interest_bearing_current_liabilities_2_yr
-        self.capital_employed_no_cash_sub_1_yr = self.total_assets_1_yr - \
-            self.non_interest_bearing_current_liabilities_1_yr
+        if self.total_assets_2_yr == self.epsilon or self.non_interest_bearing_current_liabilities_2_yr == self.epsilon:
+            self.capital_employed_no_cash_sub_2_yr = self.epsilon
+        else:
+            self.capital_employed_no_cash_sub_2_yr = self.total_assets_2_yr - \
+                self.non_interest_bearing_current_liabilities_2_yr
+
+        if self.total_assets_1_yr == self.epsilon or self.non_interest_bearing_current_liabilities_1_yr == self.epsilon:
+            self.capital_employed_no_cash_sub_1_yr = self.epsilon
+        else:
+            self.capital_employed_no_cash_sub_1_yr = self.total_assets_1_yr - \
+                self.non_interest_bearing_current_liabilities_1_yr
 
         # GSC key number 2 Operating Income
-        self.operating_income_2_yr = self.response_income[0]['operatingIncome']
-        self.operating_income_1_yr = self.response_income[1]['operatingIncome']
+        self.operating_income_2_yr = self.operating_income_2_yr
+        self.operating_income_1_yr = self.operating_income_1_yr
 
         # GSC key number 3 Free Cash Flow
-        self.FCF_2_yr = self.response_cashflow[0]['freeCashFlow']
-        self.FCF_1_yr = self.response_cashflow[1]['freeCashFlow']
+        self.FCF_2_yr = self.FCF_2_yr
+        self.FCF_1_yr = self.FCF_1_yr
 
         # GSC key number 4 Book Value
-        self.BV_2_yr = self.response_balance[0]['totalStockholdersEquity']
-        self.BV_1_yr = self.response_balance[1]['totalStockholdersEquity']
+        self.BV_2_yr = self.BV_2_yr
+        self.BV_1_yr = self.BV_1_yr
 
         # GSC key number 5 Tangible Book Value
-        self.goodwill_2_yr = self.response_balance[0]['goodwill']
-        self.goodwill_1_yr = self.response_balance[1]['goodwill']
+        if self.BV_2_yr == self.epsilon or self.goodwill_2_yr == self.epsilon:
+            self.TBV_2_yr = self.epsilon
+        else:
+            self.TBV_2_yr = self.BV_2_yr - self.goodwill_2_yr
 
-        self.TBV_2_yr = self.BV_2_yr - self.goodwill_2_yr
-        self.TBV_1_yr = self.BV_1_yr - self.goodwill_1_yr
+        if self.BV_1_yr == self.epsilon or self.goodwill_1_yr == self.epsilon:
+            self.TBV_1_yr = self.epsilon
+        else:
+            self.TBV_1_yr = self.BV_1_yr - self.goodwill_1_yr
 
         # GSC key number 6 Fully Diluted Shares
-        self.fully_diluted_shares_2_yr = self.response_income[0]['weightedAverageShsOutDil']
-        self.fully_diluted_shares_1_yr = self.response_income[1]['weightedAverageShsOutDil']
-
-
-
-
+        self.fully_diluted_shares_2_yr = self.fully_diluted_shares_2_yr
+        self.fully_diluted_shares_1_yr = self.fully_diluted_shares_1_yr
 
         # GSC return ROCE
-        self.ROCE_all_cash_sub = self.operating_income_2_yr / \
-            self.capital_employed_all_cash_sub_2_yr
-        self.ROCE_no_cash_sub = self.operating_income_2_yr / \
-            self.capital_employed_no_cash_sub_2_yr
+        if self.capital_employed_all_cash_sub_2_yr == 0:
+            print('[ERROR] ROCE_all_cash_sub: ZeroDivisionError')
+            self.ROCE_all_cash_sub = self.epsilon
+        elif self.operating_income_2_yr == self.epsilon or self.capital_employed_all_cash_sub_2_yr == self.epsilon:
+            self.ROCE_all_cash_sub = self.epsilon
+        else:
+            self.ROCE_all_cash_sub = self.operating_income_2_yr / self.capital_employed_all_cash_sub_2_yr
+
+        if self.capital_employed_no_cash_sub_2_yr == 0:
+            print('[ERROR] ROCE_no_cash_sub: ZeroDivisionError')
+            self.ROCE_no_cash_sub = self.epsilon
+        elif self.operating_income_2_yr == self.epsilon or self.capital_employed_no_cash_sub_2_yr == self.epsilon:
+            self.ROCE_no_cash_sub == self.epsilon
+        else:
+            self.ROCE_no_cash_sub = self.operating_income_2_yr / self.capital_employed_no_cash_sub_2_yr
 
         # GSC return FCFROCE
-        self.FCFROCE_all_cash_sub = self.FCF_2_yr / \
-            self.capital_employed_all_cash_sub_2_yr
-        self.FCFROCE_no_cash_sub = self.FCF_2_yr/self.capital_employed_no_cash_sub_2_yr
+        if self.capital_employed_all_cash_sub_2_yr == 0:
+            print('[ERROR] FCFROCE_all_cash_sub: ZeroDivisionError')
+            self.FCFROCE_all_cash_sub = self.epsilon
+        elif self.FCF_2_yr == self.epsilon or self.capital_employed_all_cash_sub_2_yr == self.epsilon:
+            self.FCFROCE_all_cash_sub = self.epsilon
+        else:
+            self.FCFROCE_all_cash_sub = self.FCF_2_yr / self.capital_employed_all_cash_sub_2_yr
+
+        if self.capital_employed_no_cash_sub_2_yr:
+            print('[ERROR] FCFROCE_no_cash_sub: ZeroDivisionError')
+            self.FCFROCE_no_cash_sub = self.epsilon
+        elif self.FCF_2_yr == self.epsilon or self.capital_employed_no_cash_sub_2_yr == self.epsilon:
+            self.FCFROCE_no_cash_sub = self.epsilon
+        else:
+            self.FCFROCE_no_cash_sub = self.FCF_2_yr/self.capital_employed_no_cash_sub_2_yr
 
         # GSC growth d_OI_FDS_ratio
-        self.d_OI_FDS_ratio = ((self.operating_income_2_yr/self.fully_diluted_shares_2_yr)-(
-            self.operating_income_1_yr / self.fully_diluted_shares_1_yr))/(self.operating_income_1_yr/self.fully_diluted_shares_1_yr)
+        if self.fully_diluted_shares_2_yr == 0 or self.fully_diluted_shares_1_yr == 0 or \
+                (self.operating_income_1_yr/self.fully_diluted_shares_1_yr) == 0:
+            print('[ERROR] d_OI_FDS_ratio: ZeroDivisionError')
+            self.d_OI_FDS_ratio = self.epsilon
+        elif self.operating_income_2_yr == self.epsilon or self.fully_diluted_shares_2_yr == self.epsilon or self.operating_income_1_yr == self.epsilon or self.fully_diluted_shares_1_yr == self.epsilon:
+            self.d_OI_FDS_ratio = self.epsilon
+        else:
+            self.d_OI_FDS_ratio = ((self.operating_income_2_yr/self.fully_diluted_shares_2_yr)-(
+                self.operating_income_1_yr / self.fully_diluted_shares_1_yr))/(self.operating_income_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_FCF_FDS_ratio
-        self.d_FCF_FDS_ratio = ((self.FCF_2_yr/self.fully_diluted_shares_2_yr) -
-                                (self.FCF_1_yr/self.fully_diluted_shares_1_yr))/(self.FCF_1_yr/self.fully_diluted_shares_1_yr)
+        if self.fully_diluted_shares_2_yr == 0 or self.fully_diluted_shares_1_yr == 0 or \
+                (self.operating_income_1_yr/self.fully_diluted_shares_1_yr) == 0:
+            print('[ERROR] d_FCF_FDS_ratio: ZeroDivisionError')
+            self.d_FCF_FDS_ratio = self.epsilon
+        elif self.FCF_2_yr == self.epsilon or self.fully_diluted_shares_2_yr == self.epsilon or self.FCF_1_yr == self.epsilon or self.fully_diluted_shares_1_yr == self.epsilon:
+            self.d_FCF_FDS_ratio = self.epsilon
+        else:
+            self.d_FCF_FDS_ratio = ((self.FCF_2_yr/self.fully_diluted_shares_2_yr) -
+                                    (self.FCF_1_yr/self.fully_diluted_shares_1_yr))/(self.FCF_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_BV_FDS_ratio
-        self.d_BV_FDS_ratio = ((self.BV_2_yr/self.fully_diluted_shares_2_yr)-(
-            self.BV_1_yr/self.fully_diluted_shares_1_yr))/(self.BV_1_yr/self.fully_diluted_shares_1_yr)
+        if self.fully_diluted_shares_2_yr == 0 or self.fully_diluted_shares_1_yr == 0 or \
+                (self.operating_income_1_yr/self.fully_diluted_shares_1_yr) == 0:
+            print('[ERROR] d_BV_FDS_ratio: ZeroDivisionError')
+            self.d_BV_FDS_ratio = self.epsilon
+        elif self.BV_2_yr == self.epsilon or self.fully_diluted_shares_2_yr == self.epsilon or self.BV_1_yr == self.epsilon or self.fully_diluted_shares_1_yr == self.epsilon:
+            self.d_BV_FDS_ratio = self.epsilon
+        else:
+            self.d_BV_FDS_ratio = ((self.BV_2_yr/self.fully_diluted_shares_2_yr)-(
+                self.BV_1_yr/self.fully_diluted_shares_1_yr))/(self.BV_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC growth d_TBV_FDS_ratio
-        self.d_TBV_FDS_ratio = ((self.TBV_2_yr/self.fully_diluted_shares_2_yr)-(
-            self.TBV_1_yr/self.fully_diluted_shares_1_yr))/(self.TBV_1_yr/self.fully_diluted_shares_1_yr)
+        if self.fully_diluted_shares_2_yr == 0 or self.fully_diluted_shares_1_yr == 0 or \
+                (self.operating_income_1_yr/self.fully_diluted_shares_1_yr) == 0:
+            print('[ERROR] d_TBV_FDS_ratio: ZeroDivisionError')
+            self.d_TBV_FDS_ratio = self.epsilon
+        elif self.TBV_2_yr == self.epsilon or self.fully_diluted_shares_2_yr == self.epsilon or self.TBV_1_yr == self.epsilon or self.fully_diluted_shares_1_yr == self.epsilon:
+            self.d_TBV_FDS_ratio = self.epsilon
+        else:
+            self.d_TBV_FDS_ratio = ((self.TBV_2_yr/self.fully_diluted_shares_2_yr)-(
+                self.TBV_1_yr/self.fully_diluted_shares_1_yr))/(self.TBV_1_yr/self.fully_diluted_shares_1_yr)
 
         # GSC le_ratio
-        self.le_ratio = self.total_liabilities/self.BV_2_yr
+        if self.BV_2_yr == 0:
+            print('[ERROR] le_ratio: ZeroDivisionError')
+            self.le_ratio = self.epsilon
+        elif self.total_liabilities == self.epsilon or self.BV_2_yr == self.epsilon:
+            self.le_ratio = self.epsilon
+        else:
+            self.le_ratio = self.total_liabilities/self.BV_2_yr
 
         # GSC price MCAP_FCF_ratio
-        self.MCAP_FCF_ratio = self.market_cap/self.FCF_2_yr
+        if self.FCF_2_yr == 0:
+            print('[ERROR] MCAP_FCF_ratio: ZeroDivisionError')
+            self.MCAP_FCF_ratio = self.epsilon
+        elif self.market_cap == self.epsilon or self.FCF_2_yr == self.epsilon:
+            self.MCAP_FCF_ratio = self.epsilon
+        else:
+            self.MCAP_FCF_ratio = self.market_cap/self.FCF_2_yr
 
         # GSC price EV_OI_ratio
-        self.enterprise_value = self.response_enterprise_value[0]['enterpriseValue']
-        self.EV_OI_ratio = self.enterprise_value/self.operating_income_2_yr
+        if self.operating_income_2_yr == 0:
+            print('[ERROR] EV_OI_ratio: ZeroDivisionError')
+            self.EV_OI_ratio = self.epsilon
+        elif self.enterprise_value == self.epsilon or self.operating_income_2_yr == self.epsilon:
+            self.EV_OI_ratio = self.epsilon
+        else:
+            self.EV_OI_ratio = self.enterprise_value/self.operating_income_2_yr
 
         # GSC price MCAP_BV_ratio
-        self.MCAP_FCF_ratio = self.market_cap/self.BV_2_yr
+        if self.BV_2_yr == 0:
+            print('[ERROR] MCAP_FCF_ratio: ZeroDivisionError')
+            self.MCAP_FCF_ratio = self.epsilon
+        elif self.market_cap == self.epsilon or self.BV_2_yr == self.epsilon:
+            self.MCAP_FCF_ratio = self.epsilon
+        else:
+            self.MCAP_FCF_ratio = self.market_cap/self.BV_2_yr
 
         # GSC price MCAP_TBV ratio
-        self.MCAP_TBV_ratio = self.market_cap/self.TBV_2_yr
+        if self.TBV_2_yr == 0:
+            print('[ERROR] MCAP_TBV_ratio: ZeroDivisionError')
+            self.MCAP_TBV_ratio = self.epsilon
+        elif self.market_cap == self.epsilon or self.TBV_2_yr == self.epsilon:
+            self.MCAP_TBV_ratio = self.epsilon
+        else:
+            self.MCAP_TBV_ratio = self.market_cap/self.TBV_2_yr
 
         self.gsc_key_numbers = pd.DataFrame(
             data={'symbol': [self.symbol],
@@ -441,12 +538,14 @@ foo=Stock('AAPL','2000-10-27','2010-10-27',margin=20)
 foo.update_source()
 foo.update_response()
 foo.update_price()
+foo.update_number()
 foo.update_dcf_data()
 foo.update_gsc_data()
 
-bar=Stock('MSFT','2000-10-27','2010-10-27',margin=20)
+bar=Stock('DIS','2000-10-27','2010-10-27',margin=20)
 bar.update_source()
 bar.update_response()
+bar.update_number()
 bar.update_price()
 bar.update_dcf_data()
 bar.update_gsc_data()
