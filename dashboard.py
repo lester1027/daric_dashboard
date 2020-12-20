@@ -25,6 +25,8 @@ import jsonpickle
 import jsonpickle.ext.pandas as jsonpickle_pd
 jsonpickle_pd.register_handlers()
 
+
+epsilon = 9999999999
 # %% [markdown]
 # ## Acquire the stock information from the web for intrinsic value calculation.
 # 1. Free Cash Flow
@@ -178,6 +180,18 @@ app.layout = html.Div([
         html.Div([
             dash_table.DataTable(
                 id='dcf_table',
+                data=[],
+                data_timestamp=0,
+                filter_action="native",
+                sort_action="native",
+                row_deletable=True,
+                editable=True,
+                style_table={'overflowX': 'auto'},
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto'
+                },
+                style_header={'padding-right': '35px'},
                 columns=[
                     {
                         'name': 'Symbol',
@@ -312,12 +326,10 @@ app.layout = html.Div([
                         'format': Format(precision=4)
                     }
                 ],
-                data=[],
-                data_timestamp=0,
-                filter_action="native",
-                sort_action="native",
-                row_deletable=True,
-                editable=True,
+
+
+
+
                 style_data_conditional=[
                     {
                         'if': {'row_index': 'odd'},
@@ -354,13 +366,8 @@ app.layout = html.Div([
                         'color': 'white'
                     }
 
-                ],
-                style_table={'overflowX': 'auto'},
-                style_data={
-                    'whiteSpace': 'normal',
-                    'height': 'auto'
-                },
-                style_header={'padding-right': '35px'}
+                ]
+
                 # style_header={'backgroundColor': 'rgb(30, 30, 30)'},
                 # style_cell={
                 #    'backgroundColor': 'rgb(50, 50, 50)',
@@ -392,6 +399,82 @@ app.layout = html.Div([
         dash_table.DataTable(
             id='gsc_key_number_table',
             merge_duplicate_headers=True,
+            editable=True,
+            data=[],
+            data_timestamp=0,
+            style_table={'overflowX': 'auto'},
+            style_data_conditional=[
+                {
+                    'if': {'filter_query': f'{{1_capital_employed_all_cash_sub_1_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{1_capital_employed_all_cash_sub_2_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{1_capital_employed_no_cash_sub_1_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{1_capital_employed_no_cash_sub_2_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{2_operating_income_1_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{2_operating_income_2_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{3_FCF_1_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{3_FCF_2_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{4_BV_1_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{4_BV_2_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{5_TBV_1_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{5_TBV_2_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{6_fully_diluted_shares_1_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{6_fully_diluted_shares_2_yr}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{total_liabilities}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }, {
+                    'if': {'filter_query': f'{{market_cap}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                },
+                {
+                    'if': {'filter_query': f'{{enterprise_value}} = {epsilon}'},
+                    'backgroundColor': '#FF4136',
+                    'color': 'white'
+                }
+            ],
             columns=[
                 {
                     'name': ['', 'Symbol'],
@@ -486,24 +569,21 @@ app.layout = html.Div([
                     'name': ['', 'Total Liabilities'],
                     'id':'total_liabilities',
                     'type': 'numeric',
-                    'format': Format(group=',')
+                    'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['', 'Market Capitalization'],
                     'id':'market_cap',
                     'type': 'numeric',
-                    'format': Format(group=',')
+                    'format': FormatTemplate.money(2)
                 },
                 {
                     'name': ['', 'Enterprise Value'],
                     'id':'enterprise_value',
                     'type': 'numeric',
-                    'format': Format(group=',')
-                }],
-            data=[],
-            data_timestamp=0,
-            editable=True,
-            style_table={'overflowX': 'auto'}),
+                    'format': FormatTemplate.money(2)
+                }]
+        ),
 
         html.Button(
             id='add_gsc_row_button',
@@ -515,7 +595,7 @@ app.layout = html.Div([
         html.H3('Ratios'),
         dash_table.DataTable(
             id='gsc_ratio_table',
-            editable=True,
+            data=[],
             merge_duplicate_headers=True,
             style_table={'overflowX': 'auto'},
             columns=[
@@ -526,69 +606,81 @@ app.layout = html.Div([
                 {
                     'name': ['Return', '1. Return on Capital Employed (ROCE) (all cash subtracted)'],
                     'id': '1_ROCE_all_cash_sub',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Return', '1. Return on Capital Employed (ROCE) (no cash subtracted)'],
                     'id': '1_ROCE_no_cash_sub',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Return', '2. Free Cash Flow Return on Capital Employed (FCFROCE) (all cash subtracted)'],
                     'id': '2_FCFROCE_all_cash_sub',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Return', '2. Free Cash Flow Return on Capital Employed (FCFROCE) (no cash subtracted)'],
                     'id': '2_FCFROCE_no_cash_sub',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Growth', '3. Growth in Operating Income per Fully Diluted Share (ΔOI/FDS)'],
                     'id': '3_d_OI_FDS_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Growth', '4. Growth in Free Cash Flow per Fully Diluted Share (ΔFCF/FDS)'],
                     'id': '4_d_FCF_FDS_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Growth', '5. Growth in Book Value per Fully Diluted Share (ΔBV/FDS)'],
                     'id': '5_d_BV_FDS_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Growth', '6. Growth in Tangible Book Value per Fully Diluted Share (ΔTBV/FDS)'],
                     'id': '6_d_TBV_FDS_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['', '7. Liabilities-to-equity Ratio'],
                     'id': '7_le_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Price', '8. Times Free Cash Flow (MCAP/FCF)'],
                     'id': '8_MCAP_FCF_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Price', '9. Enterprise Value to Operating Income (EV/OI)'],
                     'id': '9_EV_OI_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Price', '10. Price to Book (MCAP/BV) (P/B Ratio)'],
                     'id': '10_MCAP_FCF_ratio',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'format':Format(precision=4)
                 },
                 {
                     'name': ['Price', '11. Price to Tangible Book Value (MCAP/TBV) (PTBV)'],
                     'id': '11_MCAP_TBV_ratio',
-                    'type': 'numeric'
-                }],
-            data=[]
+                    'type': 'numeric',
+                    'format':Format(precision=4)
+                }]
         )]
 
 
@@ -643,6 +735,7 @@ def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_da
         equity = Stock(ticker, start_date[: 10], end_date[: 10], safety_margin)
         equity.update_source()
         equity.update_response()
+        equity.update_number()
         equity.update_dcf_data()
         equity.update_gsc_data()
         equity_list.append(equity)
@@ -661,7 +754,6 @@ def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_da
     prevent_initial_call=True)
 def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
                intermediate_stock_value, rows, safety_margin):
-    epsilon = 9999999999
 
     # if the last change is 'analysis button is clicked'
     # instead of'the cells in the table are changed' or 'a new row is added'
@@ -783,51 +875,51 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
 @ app.callback(
     Output('gsc_ratio_table', 'data'),
     [Input('gsc_key_number_table', 'data_timestamp'),
-    Input('gsc_key_number_table', 'data')],
+     Input('gsc_key_number_table', 'data')],
     [State('gsc_key_number_table', 'data')]
 )
-def update_ratios(gsc_key_number_table_timestamp_data,gsc_key_number_table_timestamp, gsc_key_number_table_data):
-    #if gsc_key_number_table_timestamp > 0:
-        return_rows = pd.DataFrame()
-        for row_idx, row in enumerate(gsc_key_number_table_data):
-            ratio_dict = calculate_gsc_ratios(row['1_capital_employed_all_cash_sub_1_yr'],
-                                              row['1_capital_employed_all_cash_sub_2_yr'],
-                                              row['1_capital_employed_no_cash_sub_1_yr'],
-                                              row['1_capital_employed_no_cash_sub_2_yr'],
-                                              row['2_operating_income_1_yr'],
-                                              row['2_operating_income_2_yr'],
-                                              row['3_FCF_1_yr'],
-                                              row['3_FCF_2_yr'],
-                                              row['4_BV_1_yr'],
-                                              row['4_BV_2_yr'],
-                                              row['5_TBV_1_yr'],
-                                              row['5_TBV_2_yr'],
-                                              row['6_fully_diluted_shares_1_yr'],
-                                              row['6_fully_diluted_shares_2_yr'],
-                                              row['total_liabilities'],
-                                              row['market_cap'],
-                                              row['enterprise_value']
-                                              )
+def update_ratios(gsc_key_number_table_timestamp_data, gsc_key_number_table_timestamp, gsc_key_number_table_data):
+    # if gsc_key_number_table_timestamp > 0:
+    return_rows = pd.DataFrame()
+    for row_idx, row in enumerate(gsc_key_number_table_data):
+        ratio_dict = calculate_gsc_ratios(row['1_capital_employed_all_cash_sub_1_yr'],
+                                          row['1_capital_employed_all_cash_sub_2_yr'],
+                                          row['1_capital_employed_no_cash_sub_1_yr'],
+                                          row['1_capital_employed_no_cash_sub_2_yr'],
+                                          row['2_operating_income_1_yr'],
+                                          row['2_operating_income_2_yr'],
+                                          row['3_FCF_1_yr'],
+                                          row['3_FCF_2_yr'],
+                                          row['4_BV_1_yr'],
+                                          row['4_BV_2_yr'],
+                                          row['5_TBV_1_yr'],
+                                          row['5_TBV_2_yr'],
+                                          row['6_fully_diluted_shares_1_yr'],
+                                          row['6_fully_diluted_shares_2_yr'],
+                                          row['total_liabilities'],
+                                          row['market_cap'],
+                                          row['enterprise_value']
+                                          )
 
-            return_row = pd.DataFrame({'symbol': [row['symbol']],
-                                       '1_ROCE_all_cash_sub': [ratio_dict['ROCE_all_cash_sub']],
-                                       '1_ROCE_no_cash_sub': [ratio_dict['ROCE_no_cash_sub']],
-                                       '2_FCFROCE_all_cash_sub': [ratio_dict['FCFROCE_all_cash_sub']],
-                                       '2_FCFROCE_no_cash_sub': [ratio_dict['FCFROCE_no_cash_sub']],
-                                       '3_d_OI_FDS_ratio': [ratio_dict['d_OI_FDS_ratio']],
-                                       '4_d_FCF_FDS_ratio': [ratio_dict['d_FCF_FDS_ratio']],
-                                       '5_d_BV_FDS_ratio': [ratio_dict['d_BV_FDS_ratio']],
-                                       '6_d_TBV_FDS_ratio': [ratio_dict['d_TBV_FDS_ratio']],
-                                       '7_le_ratio': [ratio_dict['le_ratio']],
-                                       '8_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
-                                       '9_EV_OI_ratio': [ratio_dict['EV_OI_ratio']],
-                                       '10_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
-                                       '11_MCAP_TBV_ratio': [ratio_dict['MCAP_TBV_ratio']]
-                                       })
-            return_rows = pd.concat([return_rows, return_row], axis=0)
+        return_row = pd.DataFrame({'symbol': [row['symbol']],
+                                   '1_ROCE_all_cash_sub': [ratio_dict['ROCE_all_cash_sub']],
+                                   '1_ROCE_no_cash_sub': [ratio_dict['ROCE_no_cash_sub']],
+                                   '2_FCFROCE_all_cash_sub': [ratio_dict['FCFROCE_all_cash_sub']],
+                                   '2_FCFROCE_no_cash_sub': [ratio_dict['FCFROCE_no_cash_sub']],
+                                   '3_d_OI_FDS_ratio': [ratio_dict['d_OI_FDS_ratio']],
+                                   '4_d_FCF_FDS_ratio': [ratio_dict['d_FCF_FDS_ratio']],
+                                   '5_d_BV_FDS_ratio': [ratio_dict['d_BV_FDS_ratio']],
+                                   '6_d_TBV_FDS_ratio': [ratio_dict['d_TBV_FDS_ratio']],
+                                   '7_le_ratio': [ratio_dict['le_ratio']],
+                                   '8_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
+                                   '9_EV_OI_ratio': [ratio_dict['EV_OI_ratio']],
+                                   '10_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
+                                   '11_MCAP_TBV_ratio': [ratio_dict['MCAP_TBV_ratio']]
+                                   })
+        return_rows = pd.concat([return_rows, return_row], axis=0)
 
-        return return_rows.to_dict('records')
+    return return_rows.to_dict('records')
 
 
 if __name__ == '__main__':
-    app.run_server(port=8500,debug=False, dev_tools_ui=False, dev_tools_props_check=False)
+    app.run_server(port=8500, debug=True, dev_tools_ui=True, dev_tools_props_check=False)
