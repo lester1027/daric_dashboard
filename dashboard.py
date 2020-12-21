@@ -84,7 +84,7 @@ for tic in allStocks['Symbol']:
 
 # %% ==================================================================================================
 # Dashboard layout
-app = dash.Dash()
+app = dash.Dash(prevent_initial_callbacks=True)
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 server = app.server
 
