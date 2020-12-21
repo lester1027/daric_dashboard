@@ -837,7 +837,7 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     prevent_initial_call=True
 )
 def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timestamp, intermediate_stock_value, safety_margin, rows):
-    if calculate_gsc_button_timestamp = add_gsc_row_button_timestamp:
+    if calculate_gsc_button_timestamp == add_gsc_row_button_timestamp:
         pass
     elif calculate_gsc_button_timestamp > add_gsc_row_button_timestamp:
         equity_list = jsonpickle.decode(intermediate_stock_value)
