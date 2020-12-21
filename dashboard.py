@@ -84,7 +84,7 @@ for tic in allStocks['Symbol']:
 
 # %% ==================================================================================================
 # Dashboard layout
-app = dash.Dash()
+app = dash.Dash(prevent_initial_callbacks=True)
 auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 server = app.server
 
@@ -700,7 +700,8 @@ app.layout = html.Div([
      State('date_picker', 'start_date'),
      State('date_picker', 'end_date'),
      State('safety_margin', 'value')],
-    prevent_initial_call=True)
+    prevent_initial_call=True
+)
 def update_graph(n_clicks, stock_ticker, start_date, end_date, safety_margin):
     # when the 'price_button' is clicked, display the close price data in the graph
     traces = []
@@ -751,7 +752,8 @@ def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_da
     [State('intermediate_stock_value', 'children'),
      State('dcf_table', 'data'),
      State('safety_margin', 'value')],
-    prevent_initial_call=True)
+    prevent_initial_call=True
+)
 def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
                intermediate_stock_value, rows, safety_margin):
 
@@ -877,10 +879,10 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
     Output('gsc_ratio_table', 'data'),
     [Input('gsc_key_number_table', 'data_timestamp'),
      Input('gsc_key_number_table', 'data')],
-    [State('gsc_key_number_table', 'data'),],
+    [State('gsc_key_number_table', 'data'), ],
     prevent_initial_call=True
 )
-def update_ratios(gsc_key_number_table_timestamp_data, gsc_key_number_table_timestamp, gsc_key_number_table_data):
+def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_original, gsc_key_number_table_data):
     # if gsc_key_number_table_timestamp > 0:
     return_rows = pd.DataFrame()
     for row_idx, row in enumerate(gsc_key_number_table_data):
@@ -924,4 +926,4 @@ def update_ratios(gsc_key_number_table_timestamp_data, gsc_key_number_table_time
 
 
 if __name__ == '__main__':
-    app.run_server(port=8500, debug=True, dev_tools_ui=True, dev_tools_props_check=False)
+    app.run_server(port=8500, debug=False, dev_tools_ui=False, dev_tools_props_check=False)
