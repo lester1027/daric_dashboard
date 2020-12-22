@@ -879,7 +879,7 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
     Output('gsc_ratio_table', 'data'),
     [Input('gsc_key_number_table', 'data_timestamp'),
      Input('gsc_key_number_table', 'data')],
-    [State('gsc_key_number_table', 'data'), ],
+    [State('gsc_key_number_table', 'data')],
     prevent_initial_call=True
 )
 def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_original, gsc_key_number_table_data):
@@ -926,4 +926,4 @@ def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_orig
 
 
 if __name__ == '__main__':
-    app.run_server(port=8500, debug=False, dev_tools_ui=False, dev_tools_props_check=False)
+    app.run_server(port=8500, debug=True)
