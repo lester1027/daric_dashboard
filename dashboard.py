@@ -121,6 +121,7 @@ app.layout = html.Div([
             html.Button(
                 id='price_button',
                 n_clicks=0,
+                n_clicks_timestamp=0,
                 children='Update Price',
                 style={'fontSize': 21, 'marginLeft': '30px'}
             ),
@@ -136,6 +137,7 @@ app.layout = html.Div([
             html.Button(
                 id='data_acquisition_button',
                 n_clicks=0,
+                n_clicks_timestamp=0,
                 children='Acquire Data',
                 style={'fontSize': 17, 'marginLeft': '30px'}
             ),
@@ -733,6 +735,7 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, safety_margin):
 def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_date,
                 safety_margin):
     app.logger.info('Acquire data button click')
+    app.logger.info(f'data_acquisition_button_click: {data_acquisition_button_click}')
     # the finanical figures are acquired and the intrinsic values are processed
     equity_list = list()
     for ticker in ticker_symbol:
@@ -764,6 +767,9 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     # instead of'the cells in the table are changed' or 'a new row is added'
     if calculate_timestamp > dcf_data_timestamp and calculate_timestamp > add_dcf_row_timestamp:
         app.logger.info('[DCF] Calculate by data acquisition')
+        app.logger.info(f'calculate_timestamp: {calculate_timestamp}')
+        app.logger.info(f'dcf_data_timestamp: {dcf_data_timestamp}')
+        app.logger.info(f'add_dcf_row_timestamp: {add_dcf_row_timestamp}')
         equity_list = jsonpickle.decode(intermediate_stock_value)
         rows = pd.DataFrame()
         for equity in equity_list:
@@ -776,6 +782,9 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     # instead of'analysis button is clicked' or 'a new row is added'
     elif dcf_data_timestamp > calculate_timestamp and dcf_data_timestamp > add_dcf_row_timestamp:
         app.logger.info('[DCF] Calculate by editing')
+        app.logger.info(f'dcf_data_timestamp: {dcf_data_timestamp}')
+        app.logger.info(f'calculate_timestamp: {calculate_timestamp}')
+        app.logger.info(f'add_dcf_row_timestamp: {add_dcf_row_timestamp}')
         # each intrinsic value is calculated again with the same pipeline
         for row in rows:
 
@@ -813,6 +822,10 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     # instead of'analysis button is clicked' or 'the cells in the table are changed'
     elif add_dcf_row_timestamp > calculate_timestamp and add_dcf_row_timestamp > dcf_data_timestamp:
         app.logger.info('[DCF] Add row')
+        app.logger.info(f'calculate_timestamp: {calculate_timestamp}')
+        app.logger.info(f'add_dcf_row_timestamp: {add_dcf_row_timestamp}')
+        app.logger.info(f'dcf_data_timestamp: {dcf_data_timestamp}')
+
         rows.append({'Symbol': '',
                      'Comparison': '',
                      'Intrinsic_Value_per_Share_with_Safety_Margin': '',
@@ -848,6 +861,9 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
 
     if calculate_gsc_button_timestamp > add_gsc_row_button_timestamp:
         app.logger.info('[GSC key numbers] Calculate')
+        app.logger.info(f'calculate_gsc_button_timestamp: {calculate_gsc_button_timestamp}')
+        app.logger.info(f'add_gsc_row_button_timestamp: {add_gsc_row_button_timestamp}')
+
         equity_list = jsonpickle.decode(intermediate_stock_value)
 
         rows = pd.DataFrame()
@@ -861,6 +877,8 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
 
     elif add_gsc_row_button_timestamp > calculate_gsc_button_timestamp:
         app.logger.info('[GSC key numbers] Add row')
+        app.logger.info(f'add_gsc_row_button_timestamp: {add_gsc_row_button_timestamp}')
+        app.logger.info(f'calculate_gsc_button_timestamp: {calculate_gsc_button_timestamp}')
         rows.append({'symbol': '',
                      '1_capital_employed_all_cash_sub_1_yr': '',
                      '1_capital_employed_all_cash_sub_2_yr': '',
@@ -891,6 +909,7 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
 )
 def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_original, gsc_key_number_table_data):
     app.logger.info('[GSC ratios] Update')
+    app.logger.info(f'gsc_key_number_table_timestamp: {gsc_key_number_table_timestamp}')
     # if gsc_key_number_table_timestamp > 0:
     return_rows = pd.DataFrame()
     for row_idx, row in enumerate(gsc_key_number_table_data):
