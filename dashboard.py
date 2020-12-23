@@ -703,6 +703,7 @@ app.layout = html.Div([
     prevent_initial_call=True
 )
 def update_graph(n_clicks, stock_ticker, start_date, end_date, safety_margin):
+    app.logger.info('Price button click')
     # when the 'price_button' is clicked, display the close price data in the graph
     traces = []
     for tic in stock_ticker:
@@ -730,6 +731,7 @@ def update_graph(n_clicks, stock_ticker, start_date, end_date, safety_margin):
 )
 def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_date,
                 safety_margin):
+    app.logger.info('Acquire data button click')
     # the finanical figures are acquired and the intrinsic values are processed
     equity_list = list()
     for ticker in ticker_symbol:
@@ -756,10 +758,11 @@ def update_data(data_acquisition_button_click, ticker_symbol, start_date, end_da
 )
 def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
                intermediate_stock_value, rows, safety_margin):
-
+    
     # if the last change is 'analysis button is clicked'
     # instead of'the cells in the table are changed' or 'a new row is added'
     if calculate_timestamp >= dcf_data_timestamp and calculate_timestamp >= add_dcf_row_timestamp:
+        app.logger.info('[DCF] Calculate by data acquisition')
         equity_list = jsonpickle.decode(intermediate_stock_value)
         rows = pd.DataFrame()
         for equity in equity_list:
@@ -771,6 +774,7 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     # if the last change is 'the cells in the table are changed'
     # instead of'analysis button is clicked' or 'a new row is added'
     elif dcf_data_timestamp > calculate_timestamp and dcf_data_timestamp > add_dcf_row_timestamp:
+        app.logger.info('[DCF] Calculate by editing')
         # each intrinsic value is calculated again with the same pipeline
         for row in rows:
 
@@ -807,6 +811,7 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     # if the last change is 'a new row is added'
     # instead of'analysis button is clicked' or 'the cells in the table are changed'
     elif add_dcf_row_timestamp > calculate_timestamp and add_dcf_row_timestamp > dcf_data_timestamp:
+        app.logger.info('[DCF] Add row')
         rows.append({'Symbol': '',
                      'Comparison': '',
                      'Intrinsic_Value_per_Share_with_Safety_Margin': '',
@@ -842,6 +847,7 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
     if calculate_gsc_button_timestamp == add_gsc_row_button_timestamp:
         pass
     elif calculate_gsc_button_timestamp > add_gsc_row_button_timestamp:
+        app.logger.info('[GSC key numbers] Calculate')
         equity_list = jsonpickle.decode(intermediate_stock_value)
 
         rows = pd.DataFrame()
@@ -854,6 +860,7 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
         return rows.to_dict('records')
 
     elif add_gsc_row_button_timestamp > calculate_gsc_button_timestamp:
+        app.logger.info('[GSC key numbers] Add row')
         rows.append({'symbol': '',
                      '1_capital_employed_all_cash_sub_1_yr': '',
                      '1_capital_employed_all_cash_sub_2_yr': '',
@@ -883,6 +890,7 @@ def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timest
     prevent_initial_call=True
 )
 def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_original, gsc_key_number_table_data):
+    app.logger.info('[GSC ratios] Update')
     # if gsc_key_number_table_timestamp > 0:
     return_rows = pd.DataFrame()
     for row_idx, row in enumerate(gsc_key_number_table_data):
