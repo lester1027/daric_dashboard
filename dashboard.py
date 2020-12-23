@@ -391,7 +391,7 @@ app.layout = html.Div([
         html.H2('Good Stocks Cheap Approach'),
         html.Button(
             id='calculate_gsc_button',
-            n_clicks_timestamp=0,
+            n_clicks_timestamp = 0,
             children='Calculate GSC',
             style={'fontSize': 17, 'marginLeft': '30px'}
         ),
@@ -596,6 +596,7 @@ app.layout = html.Div([
         dash_table.DataTable(
             id='gsc_ratio_table',
             data=[],
+            data_timestamp=0,
             merge_duplicate_headers=True,
             style_table={'overflowX': 'auto'},
             columns=[
