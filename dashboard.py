@@ -762,7 +762,7 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     
     # if the last change is 'analysis button is clicked'
     # instead of'the cells in the table are changed' or 'a new row is added'
-    if calculate_timestamp >= dcf_data_timestamp and calculate_timestamp >= add_dcf_row_timestamp:
+    if calculate_timestamp > dcf_data_timestamp and calculate_timestamp > add_dcf_row_timestamp:
         app.logger.info('[DCF] Calculate by data acquisition')
         equity_list = jsonpickle.decode(intermediate_stock_value)
         rows = pd.DataFrame()
@@ -845,9 +845,8 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
     prevent_initial_call=True
 )
 def update_key_numbers(calculate_gsc_button_timestamp, add_gsc_row_button_timestamp, intermediate_stock_value, safety_margin, rows):
-    if calculate_gsc_button_timestamp == add_gsc_row_button_timestamp:
-        pass
-    elif calculate_gsc_button_timestamp > add_gsc_row_button_timestamp:
+
+    if calculate_gsc_button_timestamp > add_gsc_row_button_timestamp:
         app.logger.info('[GSC key numbers] Calculate')
         equity_list = jsonpickle.decode(intermediate_stock_value)
 
