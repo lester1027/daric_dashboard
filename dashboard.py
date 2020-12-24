@@ -944,7 +944,7 @@ def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_orig
                                    '7_le_ratio': [ratio_dict['le_ratio']],
                                    '8_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
                                    '9_EV_OI_ratio': [ratio_dict['EV_OI_ratio']],
-                                   '10_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
+                                   '10_MCAP_BV_ratio': [ratio_dict['MCAP_BV_ratio']],
                                    '11_MCAP_TBV_ratio': [ratio_dict['MCAP_TBV_ratio']]
                                    })
         return_rows = pd.concat([return_rows, return_row], axis=0)
