@@ -37,7 +37,7 @@ epsilon = 9999999999
 # 6. Risk Free Rate
 # 7. Market Risk Premium
 # 8. Business Tax Rate
-# 9. Estimatedd Interest Rate
+# 9. Estimated Interest Rate
 # 10. Market Value of Equity
 # 11. Market Value of Debt
 # 12. Total Liabilities
@@ -674,7 +674,7 @@ app.layout = html.Div([
                 },
                 {
                     'name': ['Price', '10. Price to Book (MCAP/BV) (P/B Ratio)'],
-                    'id': '10_MCAP_FCF_ratio',
+                    'id': '10_MCAP_BV_ratio',
                     'type': 'numeric',
                     'format':Format(precision=4)
                 },
