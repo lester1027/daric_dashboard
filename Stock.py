@@ -223,7 +223,7 @@ class Stock:
         # dcf Figure 8: Business tax rate
         self.tax_rate = self.tax_rate
 
-        # dcf Figure 9: Estimated long-term interest rate
+        # dcf Figure 9: Estimatedd long-term interest rate
         # if the denominator is 0
         if self.long_term_debt == 0:
             print('[ERROR] long_term_int_rate: ZeroDivisionError')
@@ -319,7 +319,7 @@ class Stock:
                   '6_Risk_Free_Rate': [self.risk_free_rate],
                   '7_Market_Risk_Premium': [self.risk_premium],
                   '8_Business_Tax_Rate': [self.tax_rate],
-                  '9_Estimate_Interest_Rate': [self.long_term_int_rate],
+                  '9_Estimated_Interest_Rate': [self.long_term_int_rate],
                   '10_Market_Value_of_Equity': [self.market_cap],
                   '11_Market_Value_of_Debt': [self.mv_debt],
                   '12_Total_Liabilities': [self.total_liabilities],
