@@ -223,7 +223,7 @@ class Stock:
         # dcf Figure 8: Business tax rate
         self.tax_rate = self.tax_rate
 
-        # dcf Figure 9: Estimatedd long-term interest rate
+        # dcf Figure 9: Estimated long-term interest rate
         # if the denominator is 0
         if self.long_term_debt == 0:
             print('[ERROR] long_term_int_rate: ZeroDivisionError')
