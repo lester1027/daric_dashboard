@@ -140,13 +140,13 @@ def calculate_gsc_ratios(capital_employed_all_cash_sub_1_yr, capital_employed_al
 
     # GSC price MCAP_BV_ratio
     if BV_2_yr == 0:
-        print('[ERROR] MCAP_FCF_ratio: ZeroDivisionError')
-        MCAP_FCF_ratio = epsilon
+        print('[ERROR] MCAP_BV_ratio: ZeroDivisionError')
+        MCAP_BV_ratio = epsilon
     elif market_cap == epsilon or BV_2_yr == epsilon or \
             type(market_cap) == str or type(BV_2_yr) == str:
-        MCAP_FCF_ratio = epsilon
+        MCAP_BV_ratio = epsilon
     else:
-        MCAP_FCF_ratio = market_cap/float(BV_2_yr)
+        MCAP_BV_ratio = market_cap/float(BV_2_yr)
 
     # GSC price MCAP_TBV ratio
     if TBV_2_yr == 0:
@@ -171,7 +171,7 @@ def calculate_gsc_ratios(capital_employed_all_cash_sub_1_yr, capital_employed_al
     ratio_dict['le_ratio'] = le_ratio
     ratio_dict['MCAP_FCF_ratio'] = MCAP_FCF_ratio
     ratio_dict['EV_OI_ratio'] = EV_OI_ratio
-    ratio_dict['MCAP_FCF_ratio'] = MCAP_FCF_ratio
+    ratio_dict['MCAP_BV_ratio'] = MCAP_BV_ratio
     ratio_dict['MCAP_TBV_ratio'] = MCAP_TBV_ratio
 
     return ratio_dict

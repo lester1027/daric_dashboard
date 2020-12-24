@@ -37,7 +37,7 @@ epsilon = 9999999999
 # 6. Risk Free Rate
 # 7. Market Risk Premium
 # 8. Business Tax Rate
-# 9. Estimated Interest Rate
+# 9. Estimatedd Interest Rate
 # 10. Market Value of Equity
 # 11. Market Value of Debt
 # 12. Total Liabilities
@@ -280,8 +280,8 @@ app.layout = html.Div([
                         'format': Format(precision=4)
                     },
                     {
-                        'name': '9. Estimate Interest Rate',
-                        'id': '9_Estimate_Interest_Rate',
+                        'name': '9. Estimated Interest Rate',
+                        'id': '9_Estimated_Interest_Rate',
                         "deletable": True,
                         "selectable": True,
                         'type': 'numeric',
@@ -797,7 +797,7 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
                 float(row['6_Risk_Free_Rate']),
                 float(row['7_Market_Risk_Premium']),
                 float(row['8_Business_Tax_Rate']),
-                float(row['9_Estimate_Interest_Rate']),
+                float(row['9_Estimated_Interest_Rate']),
                 float(row['10_Market_Value_of_Equity']),
                 float(row['11_Market_Value_of_Debt']),
                 float(row['12_Total_Liabilities']),
@@ -838,7 +838,7 @@ def update_dcf(calculate_timestamp, dcf_data_timestamp, add_dcf_row_timestamp,
                      '6_Risk_Free_Rate': '',
                      '7_Market_Risk_Premium': '',
                      '8_Business_Tax_Rate': '',
-                     '9_Estimate_Interest_Rate': '',
+                     '9_Estimated_Interest_Rate': '',
                      '10_Market_Value_of_Equity': '',
                      '11_Market_Value_of_Debt': '',
                      '12_Total_Liabilities': '',
@@ -944,7 +944,7 @@ def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_orig
                                    '7_le_ratio': [ratio_dict['le_ratio']],
                                    '8_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
                                    '9_EV_OI_ratio': [ratio_dict['EV_OI_ratio']],
-                                   '10_MCAP_FCF_ratio': [ratio_dict['MCAP_FCF_ratio']],
+                                   '10_MCAP_BV_ratio': [ratio_dict['MCAP_BV_ratio']],
                                    '11_MCAP_TBV_ratio': [ratio_dict['MCAP_TBV_ratio']]
                                    })
         return_rows = pd.concat([return_rows, return_row], axis=0)
