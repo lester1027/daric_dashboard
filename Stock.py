@@ -347,7 +347,7 @@ class Stock:
             self.capital_employed_all_cash_sub_2_yr = self.total_assets_2_yr - \
                 self.cce_2_yr - self.non_interest_bearing_current_liabilities_2_yr
 
-        if self.total_assets_1_yr == self.epsilon or self.cce_1_yr == self.epsilon or self.non_interest_bearing_current_liabilities_1_yr:
+        if self.total_assets_1_yr == self.epsilon or self.cce_1_yr == self.epsilon or self.non_interest_bearing_current_liabilities_1_yr == self.epsilon:
             self.capital_employed_all_cash_sub_1_yr = self.epsilon
         else:
             self.capital_employed_all_cash_sub_1_yr = self.total_assets_1_yr - \
