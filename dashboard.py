@@ -953,4 +953,4 @@ def update_ratios(gsc_key_number_table_timestamp, gsc_key_number_table_data_orig
 
 
 if __name__ == '__main__':
-    app.run_server(port=8500, debug=True)
+    app.run_server(port=8500, debug=False)
