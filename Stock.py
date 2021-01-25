@@ -214,7 +214,7 @@ class Stock:
         # dcf Figure 7: Market risk premium
         try:
             self.risk_premium = float(
-                self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
+                self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United  States', 'Total Equity Risk Premium'].values[0].strip('%'))/100
 
         except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] risk_premium: ', e)
