@@ -102,7 +102,7 @@ class Stock:
         self.response_financial_ratios = requests.request(
             'GET', self.url_financial_ratios).json()
         self.response_gdp_growth_rate = pd.read_html(
-            self.url_gdp_growth_rate)[1]
+            self.url_gdp_growth_rate)[2]
 
         self.response_enterprise_value = requests.request(
             'GET', self.url_enterprise_value).json()
@@ -214,7 +214,7 @@ class Stock:
         # dcf Figure 7: Market risk premium
         try:
             self.risk_premium = float(
-                self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United  States', 'Total Equity Risk Premium'].values[0].strip('%'))/100
+                self.response_risk_premium.loc[self.response_risk_premium['Country'] == 'United States', 'Equity Risk  Premium'].values[0].strip('%'))/100
 
         except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] risk_premium: ', e)
@@ -258,7 +258,7 @@ class Stock:
         # the real GDP growth rate from 2013 to 2018
         try:
             self.gdp_growth_rate = float(
-                self.response_gdp_growth_rate[self.response_gdp_growth_rate['Country'] == 'United States']['Average GDP growthrate (%) 2013–2018'].values)/100
+                self.response_gdp_growth_rate[self.response_gdp_growth_rate['Country'] == 'United States *']['Avg'].values)/100
 
         except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] gdp_growth_rate: ', e)
