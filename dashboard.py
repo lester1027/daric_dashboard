@@ -4,27 +4,28 @@
 # ## Import all necessary dependencies first
 
 # %%
-from Stock import Stock
-from calculate_gsc_ratios import calculate_gsc_ratios
-from calculate_intrinsic_value import calculate_intrinsic_value
 from datetime import datetime
 import requests
 
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, State
-from dash_table.Format import Format, Scheme, Sign, Symbol
-import dash_table.FormatTemplate as FormatTemplate
-import dash_table
-import dash_html_components as html
-import dash_core_components as dcc
-import dash_auth
 import dash
+from dash.dependencies import Input, Output, State
+from dash import dash_table
+from dash.dash_table.Format import Format, Scheme, Sign, Symbol
+import dash.dash_table.FormatTemplate as FormatTemplate
+from dash import html
+from dash import dcc
+import dash_auth
+
 import jsonpickle
 import jsonpickle.ext.pandas as jsonpickle_pd
 jsonpickle_pd.register_handlers()
 
+from Stock import Stock
+from calculate_gsc_ratios import calculate_gsc_ratios
+from calculate_intrinsic_value import calculate_intrinsic_value
 
 epsilon = 9999999999
 # %% [markdown]
