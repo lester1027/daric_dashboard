@@ -6,10 +6,6 @@ charset-normalizer==2.0.12
 chart-studio==1.1.0
 click==8.0.4
 dash==2.3.0
-dash-auth==1.4.1
-dash-core-components==2.0.0
-dash-html-components==2.0.0
-dash-table==5.0.0
 debugpy==1.5.1
 decorator==5.1.1
 entrypoints==0.4
