@@ -17,7 +17,7 @@ Flask==2.0.3
 Flask-Compress==1.11
 Flask-SeaSurf==0.3.1
 idna==3.3
-ipykernel==6.10.0
+ipykernel==5.5.6
 ipython==8.2.0
 itsdangerous==2.1.2
 jedi==0.18.1
