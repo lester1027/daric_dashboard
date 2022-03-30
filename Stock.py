@@ -95,7 +95,7 @@ class Stock:
             'GET', self.url_cashflow).json()
         self.response_financial_growth = requests.request(
             'GET', self.url_financial_growth).json()
-        self.response_risk_free = pd.read_html(self.url_gov_bonds)[0]
+        self.response_risk_free = pd.read_html(self.url_gov_bonds, header=1)[0]
 
         self.response_risk_premium = pd.read_html(
             self.url_risk_premium, header=0)[0]
@@ -205,7 +205,7 @@ class Stock:
         # 10-year government's bond
         try:
             self.risk_free_rate = float(
-                self.response_risk_free[self.response_risk_free['Country'] == 'United States']['10Y Yield'].values[0].strip('%'))/100
+                self.response_risk_free.loc[self.response_risk_free['Country'] == 'United States', 'Yield'].values[0].strip('%'))/100
 
         except (ZeroDivisionError, TypeError) as e:
             print('[ERROR] risk_free_rate: ', e)
