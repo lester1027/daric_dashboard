@@ -17,7 +17,6 @@ from dash.dash_table.Format import Format, Scheme, Sign, Symbol
 import dash.dash_table.FormatTemplate as FormatTemplate
 from dash import html
 from dash import dcc
-import dash_auth
 
 import jsonpickle
 import jsonpickle.ext.pandas as jsonpickle_pd
@@ -45,10 +44,6 @@ epsilon = 9999999999
 # 13. Cash & Cash Equivalents
 # 14. GDP Growth Rate
 
-# %%
-USERNAME_PASSWORD_PAIRS = [
-    ['Lester', 'wildcard']
-]
 
 
 # %%Read stock symbols and names
@@ -86,7 +81,6 @@ for tic in allStocks['Symbol']:
 # %% ==================================================================================================
 # Dashboard layout
 app = dash.Dash(prevent_initial_callbacks=True)
-auth = dash_auth.BasicAuth(app, USERNAME_PASSWORD_PAIRS)
 server = app.server
 
 # design the dashboard layout
