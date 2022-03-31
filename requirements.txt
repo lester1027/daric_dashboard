@@ -16,6 +16,7 @@ executing==0.8.3
 Flask==2.0.3
 Flask-Compress==1.11
 Flask-SeaSurf==0.3.1
+gunicorn==20.1.0
 idna==3.3
 importlib-metadata==4.11.3
 ipykernel==5.5.6
