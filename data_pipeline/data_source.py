@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from data_pipeline.data_loader import FMPDataLoader
+
+from data_pipeline.data_loader import FMPDataLoader, WGBDataLoader
 
 class DataSource(ABC):
 
@@ -14,3 +15,10 @@ class FMPDataSource(DataSource):
 
     def create_loader(self):
         return FMPDataLoader(self.source_url)
+
+class WGBDataSource(DataSource):
+
+    source_url = 'http://www.worldgovernmentbonds.com/'
+
+    def create_loader(self):
+        return WGBDataLoader(self.source_url)
