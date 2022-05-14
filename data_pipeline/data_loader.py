@@ -343,3 +343,26 @@ class WGBDataLoader(DataLoader):
         }
 
         print(f'WGBDataLoader - Finish getting raw data for {symbol}')
+
+class WikiDataLoader(DataLoader):
+
+    def __init__(self, source_url):
+        self.source_url = source_url
+
+    def get_response(self):
+        df_gdp = pd.read_html('https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate')[1]
+        df_gdp = df_gdp[['Country', 'Avg.']]
+        df_gdp = df_gdp.rename(columns={'Country': 'country', 'Avg.': 'avg_gdp_growth'})
+
+        return df_gdp
+
+    def get_raw_data(self, symbol=None):
+        
+        df_gdp = self.get_response()
+        df_current_and_others = df_gdp
+
+        self.raw_data = {
+            'current_and_others': df_current_and_others,
+        }
+
+        print(f'WikiDataLoader - Finish getting raw data for {symbol}')
