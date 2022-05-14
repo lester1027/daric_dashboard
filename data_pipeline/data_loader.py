@@ -171,7 +171,11 @@ class FMPDataLoader(DataLoader):
 
     def __init__(self, source_url):
         self.source_url = source_url
-
+        # convert from approximations to the full name in the FMP API
+        self.country_dict = {
+            'US': 'United States',
+            'HK': 'Hong Kong',
+        }
 
     def get_endpoint_url(self, symbol, endpoint):
 
@@ -247,14 +251,17 @@ class FMPDataLoader(DataLoader):
                 data_key_in_fmp = self.data_keys[period]['market_risk_premium'][data_key]
 
 
-                # country = endpoint_response['company_outlook']['profile']['country']
+                country = endpoint_response['company_outlook']['profile']['country']
 
-                mar_cap_list = endpoint_response['market_risk_premium']
-                mar_cap_df = pd.DataFrame(mar_cap_list)
+                if country in self.country_dict:
+                    # from the appoximation to the full name
+                    country = self.country_dict[country]
+
+                df_premium = pd.DataFrame(endpoint_response['market_risk_premium'])
 
                 # hard-code for the U.S. for now
-                data = mar_cap_df.loc[mar_cap_df['country'] == 'United States', data_key_in_fmp].values[0]
-
+                data = df_premium.loc[df_premium['country'] == 'United States', data_key_in_fmp].values[0]
+                print(data)
             if data_key in self.data_keys[period]['company_ttm_ratios']:
 
                 data_key_in_fmp = self.data_keys[period]['company_ttm_ratios'][data_key]
