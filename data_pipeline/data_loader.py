@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from functools import reduce
 from functools import cached_property
-import requests
+import grequests
 
 import pandas as pd
 
@@ -199,12 +199,35 @@ class FMPDataLoader(DataLoader):
 
         return endpoint_url
 
-    def get_endpoint_response(self, symbol, endpoint):
-        # get the response from a single FMP API endpoint
+    def get_endpoint_response(self, symbol, endpoints):
+        # get the response from a list of FMP API endpoint
         # this function can be used out of get_raw_data()
+        endpoint_url = {}
+        endpoint_response = {}
 
-        endpoint_url = self.get_endpoint_url(symbol, endpoint)
-        endpoint_response = requests.request('GET', endpoint_url).json()
+        for endpoint in endpoints:
+            endpoint_url[endpoint] = (self.get_endpoint_url(symbol, endpoint))
+
+        # dict to a list of tuples
+        # [(endpoint1 , url1), (endpoint2, url2)]
+        endpoint_url_tup = [(endpoint, url) for endpoint, url in endpoint_url.items()]
+
+        # extract the items as a list
+        # ensure 1-to-1 mapping of the 2 lists
+        endpoint_url_list = [tup[1] for tup in endpoint_url_tup]
+        endpoint_list = [tup[0] for tup in endpoint_url_tup]
+
+        def exception_handler(request, exception):
+            print(request, exception)
+
+        # create a set of unsent requests
+        rs = (grequests.get(u) for u in endpoint_url_list)
+        # send them all at the same time
+        response = grequests.map(rs, exception_handler=exception_handler)
+
+        for i in range(len(endpoint_list)):
+            endpoint = endpoint_list[i]
+            endpoint_response[endpoint] = response[i].json()
 
         return endpoint_response
 
@@ -280,10 +303,7 @@ class FMPDataLoader(DataLoader):
     def get_raw_data(self, symbol):
 
         # ============== Collect the response from all endpoints into a dict ==============
-        self.endpoint_response = {}
-
-        for endpoint in self.endpoints:
-            self.endpoint_response[endpoint] = self.get_endpoint_response(symbol, endpoint)
+        self.endpoint_response = self.get_endpoint_response(symbol, self.endpoints_list)
 
         # ============== Collect the data from the response of endpoints ==============
         df_annual = pd.DataFrame()
@@ -364,7 +384,7 @@ class WikiDataLoader(DataLoader):
         return df_gdp
 
     def get_raw_data(self, symbol=None):
-        
+
         df_gdp = self.get_response()
         df_current_and_others = df_gdp
 
