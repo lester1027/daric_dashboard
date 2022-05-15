@@ -261,7 +261,7 @@ class FMPDataLoader(DataLoader):
 
                 # hard-code for the U.S. for now
                 data = df_premium.loc[df_premium['country'] == 'United States', data_key_in_fmp].values[0]
-                print(data)
+
             if data_key in self.data_keys[period]['company_ttm_ratios']:
 
                 data_key_in_fmp = self.data_keys[period]['company_ttm_ratios'][data_key]
