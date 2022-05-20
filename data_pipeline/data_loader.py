@@ -268,6 +268,9 @@ class FMPDataLoader(DataLoader):
 
                 data_key_in_fmp = self.data_keys[period]['company_outlook'][data_key]
                 data = endpoint_response['company_outlook']['profile'][data_key_in_fmp]
+                if data_key_in_fmp == 'country':
+                    if data in self.country_dict:
+                        data = self.country_dict[data]
 
             if data_key in self.data_keys[period]['market_risk_premium']:
 
@@ -277,13 +280,13 @@ class FMPDataLoader(DataLoader):
                 country = endpoint_response['company_outlook']['profile']['country']
 
                 if country in self.country_dict:
-                    # from the appoximation to the full name
+                    # from the abbreviation to the full name
                     country = self.country_dict[country]
 
                 df_premium = pd.DataFrame(endpoint_response['market_risk_premium'])
 
                 # hard-code for the U.S. for now
-                data = df_premium.loc[df_premium['country'] == 'United States', data_key_in_fmp].values[0]
+                data = df_premium.loc[df_premium['country'] == country, data_key_in_fmp].values[0]
 
             if data_key in self.data_keys[period]['company_ttm_ratios']:
 
