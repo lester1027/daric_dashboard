@@ -356,7 +356,7 @@ class WGBDataLoader(DataLoader):
         df_bonds = pd.read_html(self.source_url, header=1)[1]
         df_bonds = df_bonds[['Country', 'Yield']]
         df_bonds = df_bonds.rename(columns={'Country': 'country', 'Yield': 'risk_free_rate'})
-        df_bonds = df_bonds['country'].apply(lambda x: x.replace('(*)', ''))
+        df_bonds['country'] = df_bonds['country'].apply(lambda x: x.replace('(*)', ''))
 
         return df_bonds
 
