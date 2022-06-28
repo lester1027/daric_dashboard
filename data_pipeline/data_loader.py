@@ -349,6 +349,11 @@ class FMPDataLoader(DataLoader):
 
         print(f'FMPDataLoader - Finish getting raw data for {symbol}')
 
+    def get_stock_symbols(self):
+        url_stock_symbols = self.fmp_url + '/v3/stock/list?apikey=' + self._api_key
+        rs = (grequests.get(u) for u in [url_stock_symbols])
+        response = grequests.map(rs, exception_handler=exception_handler)
+        return response[0].json()
 
 class WGBDataLoader(DataLoader):
 
