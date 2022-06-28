@@ -6,6 +6,9 @@ import grequests
 
 import pandas as pd
 
+def exception_handler(request, exception):
+    print(request, exception)
+
 class DataLoader(ABC):
 
     @abstractmethod
@@ -216,9 +219,6 @@ class FMPDataLoader(DataLoader):
         # ensure 1-to-1 mapping of the 2 lists
         endpoint_url_list = [tup[1] for tup in endpoint_url_tup]
         endpoint_list = [tup[0] for tup in endpoint_url_tup]
-
-        def exception_handler(request, exception):
-            print(request, exception)
 
         # create a set of unsent requests
         rs = (grequests.get(u) for u in endpoint_url_list)
