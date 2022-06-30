@@ -9,6 +9,7 @@ class Stock:
             'annual': pd.DataFrame(),
             'quarterly': pd.DataFrame(),
             'current_and_others': pd.DataFrame(),
+            'daily': pd.DataFrame(),
         }
 
     def combine_raw_data(self, new_raw_data):
