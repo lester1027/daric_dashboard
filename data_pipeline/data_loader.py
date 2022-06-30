@@ -250,19 +250,14 @@ class FMPDataLoader(DataLoader):
         for each data key
         '''
 
-        if data_key in self.data_keys_by_period['annual']:
+        if data_key in self.data_keys_by_period['annual'] + \
+            self.data_keys_by_period['quarterly']:
 
-            period = 'annual'
-            for endpoint, endpoint_dict in self.data_keys[period].items():
-                if data_key in endpoint_dict:
-                    data_key_in_fmp = endpoint_dict[data_key]
-                    response_df = pd.DataFrame(self.endpoint_response[endpoint])
-                    data = response_df[['date', data_key_in_fmp]]
-                    # change to a more Pythonic name
-                    data = data.rename(columns={data_key_in_fmp: data_key})
+            if data_key in self.data_keys_by_period['annual']:
+                period = 'annual'
+            if data_key in self.data_keys_by_period['quarterly']:
+                period = 'quarterly'
 
-        elif data_key in self.data_keys_by_period['quarterly']:
-            period = 'quarterly'
             for endpoint, endpoint_dict in self.data_keys[period].items():
                 if data_key in endpoint_dict:
                     data_key_in_fmp = endpoint_dict[data_key]
