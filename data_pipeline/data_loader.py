@@ -97,6 +97,12 @@ class FMPDataLoader(DataLoader):
             'name': 'enterprise-values',
             'period': 'annual',
         },
+        'historical_price_full': {
+            'symbol_config': 'before',
+            'version': 'v3',
+            'name': 'historical-price-full',
+            'period': None,
+        }
     }
 
     @property
@@ -156,6 +162,11 @@ class FMPDataLoader(DataLoader):
                 'net_income_growth': 'growthNetIncome',
             },
         },
+        'daily': {
+            'historical_price_full': {
+                'historical_daily_close': 'historical',
+            }
+        }
     }
 
     @cached_property
@@ -297,10 +308,18 @@ class FMPDataLoader(DataLoader):
             if data_key in self.data_keys[period]['income_statements_growth']:
 
                 data_key_in_fmp = self.data_keys[period]['income_statements_growth'][data_key]
+
                 data = self.endpoint_response['income_statements_growth'][0][data_key_in_fmp]
 
         elif data_key in self.data_keys_by_period['daily']:
-            pass
+
+            period = 'daily'
+
+            if data_key in self.data_keys[period]['historical_price_full']:
+                data_key_in_fmp = self.data_keys[period]['historical_price_full'][data_key]
+                data = pd.DataFrame(self.endpoint_response['historical_price_full'][data_key_in_fmp])
+                data = data[['date', 'close']]
+                data = data.rename(columns={'close': data_key})
 
         else:
             raise Exception('Wrong data key. It does not belong to any existing period.')
@@ -316,6 +335,7 @@ class FMPDataLoader(DataLoader):
         df_annual = pd.DataFrame()
         df_quarterly = pd.DataFrame()
         df_current_and_others = pd.DataFrame()
+        df_daily = pd.DataFrame()
 
         for period, data_keys in self.data_keys_by_period.items():
             for data_key in data_keys:
@@ -338,10 +358,14 @@ class FMPDataLoader(DataLoader):
                         df_quarterly = df_quarterly.merge(data, on='date')
 
                 elif period == 'current_and_others':
-                    pass
                     data = self.get_data_key_response(data_key)
                     # df without time series
                     df_current_and_others[data_key] = [data]
+
+                elif period == 'daily':
+                    data = self.get_data_key_response(data_key)
+                    df_daily = data
+
                 else:
                     raise Exception('Wrong period')
 
@@ -349,6 +373,7 @@ class FMPDataLoader(DataLoader):
             'annual': df_annual,
             'quarterly': df_quarterly,
             'current_and_others': df_current_and_others,
+            'daily': df_daily,
         }
 
         print(f'FMPDataLoader - Finish getting raw data for {symbol}')
