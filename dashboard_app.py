@@ -18,7 +18,7 @@ app.layout = html.Div(
             dcc.Tab(label='Calculation', value='tab-calculation'),
             dcc.Tab(label='Data', value='tab-data'),
         ]),
-    html.Div(id='tabs-content')
+        html.Div(id='tabs-content')
     ]
 )
 
