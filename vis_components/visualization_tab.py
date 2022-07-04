@@ -105,7 +105,9 @@ def get_stock_data(refresh_data, stock_symbols):
         for stock_symbol in stock_symbols:
             stock = Stock(stock_symbol)
             stock.get_raw_data()
-            stock_data[stock_symbol] = jsonpickle.encode(stock)
+            stock_data[stock_symbol] = stock
+
+        stock_data = jsonpickle.encode(stock_data)
 
         return stock_data
 
@@ -116,15 +118,17 @@ def get_stock_data(refresh_data, stock_symbols):
     Input('stock-data', 'data'),
 )
 def plot_price_graph(stock_data):
+
     if stock_data is not None:
-        
+
+        stock_data = jsonpickle.decode(stock_data)
+
         fig = go.Figure()
 
-        for symbol, stock_enc in stock_data.items():
-            
-            stock_dec = jsonpickle.decode(stock_enc)
-            X = stock_dec.raw_data['daily']['date']
-            y = stock_dec.raw_data['daily']['historical_daily_close']
+        for symbol, stock in stock_data.items():
+
+            X = stock.raw_data['daily']['date']
+            y = stock.raw_data['daily']['historical_daily_close']
             fig.add_trace(go.Scatter(x=X, y=y))
 
         return fig
