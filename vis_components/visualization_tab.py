@@ -12,6 +12,7 @@ from data_pipeline.stock import Stock
 from main_dash import app
 
 tab_visualization_layout = html.Div([
+    dcc.Interval(id='visualization-start', interval=1, max_intervals=1),
     html.H1('Daric Stock Dashboard'),
     html.Hr(),
     # ====================================================
@@ -118,12 +119,13 @@ def get_stock_data(refresh_data, stock_symbols):
 # plot the price graph
 @app.callback(
     Output('price-graph', 'figure'),
-    Input('stock-data', 'data'),
+    [Input('refresh-data', 'n_clicks'),
+    Input('visualization-start', 'n_intervals')],
+    State('stock-data', 'data'),
 )
-def plot_price_graph(stock_data):
+def plot_price_graph(refresh_data, visualization_start, stock_data):
 
-    if stock_data is not None:
-
+    if refresh_data is not None or visualization_start is not None:
         stock_data = jsonpickle.decode(stock_data)
 
         fig = go.Figure()
