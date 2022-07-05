@@ -119,13 +119,13 @@ def get_stock_data(refresh_data, stock_symbols):
 # plot the price graph
 @app.callback(
     Output('price-graph', 'figure'),
-    [Input('refresh-data', 'n_clicks'),
+    [Input('stock-data', 'modified_timestamp'),
     Input('visualization-start', 'n_intervals')],
     State('stock-data', 'data'),
 )
-def plot_price_graph(refresh_data, visualization_start, stock_data):
+def plot_price_graph(stock_data_timestamp, visualization_start, stock_data):
 
-    if refresh_data is not None or visualization_start is not None:
+    if stock_data_timestamp != -1 or visualization_start is not None:
         stock_data = jsonpickle.decode(stock_data)
 
         fig = go.Figure()
