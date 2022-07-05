@@ -54,8 +54,8 @@ tab_visualization_layout = html.Div([
     Output('stock-symbol-all', 'data'),
     Input('app-start', 'n_intervals'),
 )
-def save_all_stock_symbols(n_intervals):
-    if n_intervals is None:
+def save_all_stock_symbols(app_start):
+    if app_start is None:
         # get the stock symbols from FMP
         fmp_source = FMPDataSource()
         fmp_loader = fmp_source.create_loader()
@@ -79,7 +79,7 @@ def save_all_stock_symbols(n_intervals):
     Input('app-start', 'n_intervals'),
     State('stock-symbol-all', 'data'),
 )
-def load_stock_options(n_intervals, all_stock_symbols):
+def load_stock_options(app_start, all_stock_symbols):
     return all_stock_symbols
 
 
