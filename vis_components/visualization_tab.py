@@ -99,7 +99,7 @@ def save_stock_name(stock_symbol):
 )
 def get_stock_data(refresh_data, stock_symbols):
     if refresh_data >= 1:
-        print(stock_symbols)
+
         stock_data = {}
 
         for stock_symbol in stock_symbols:
@@ -110,6 +110,9 @@ def get_stock_data(refresh_data, stock_symbols):
         stock_data = jsonpickle.encode(stock_data)
 
         return stock_data
+
+    else:
+        return dash.no_update
 
 
 # plot the price graph
