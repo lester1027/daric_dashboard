@@ -50,6 +50,7 @@ def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
                             columns=[{"name": i, "id": i} for i in df_current_and_others.columns],
                             editable=True,
                             persistence=True,
+                            style_table={'overflowX': 'auto'},
                         ),
                     ]),
 
@@ -60,6 +61,7 @@ def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
                             columns=[{"name": i, "id": i} for i in df_quarterly.columns],
                             editable=True,
                             persistence=True,
+                            style_table={'overflowX': 'auto'},
                         ),
                     ]),
 
@@ -70,6 +72,7 @@ def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
                             columns=[{"name": i, "id": i} for i in df_annual.columns],
                             editable=True,
                             persistence=True,
+                            style_table={'overflowX': 'auto'},
                         ),
                     ]),
 
