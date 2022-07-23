@@ -43,27 +43,36 @@ def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
             div_children.extend(
                 [
                     html.H3(f'{symbol}'),
-                    html.H4('Current and others'),
-                    dash_table.DataTable(
-                        data=df_current_and_others.to_dict('records'),
-                        columns=[{"name": i, "id": i} for i in df_current_and_others.columns],
-                        editable=True,
-                        persistence=True,
-                    ),
-                    html.H4('Quarterly'),
-                    dash_table.DataTable(
-                        data=df_quarterly.to_dict('records'),
-                        columns=[{"name": i, "id": i} for i in df_quarterly.columns],
-                        editable=True,
-                        persistence=True,
-                    ),
-                    html.H4('Annual'),
-                    dash_table.DataTable(
-                        data=df_annual.to_dict('records'),
-                        columns=[{"name": i, "id": i} for i in df_annual.columns],
-                        editable=True,
-                        persistence=True,
-                    ),
+                    html.Details([
+                        html.Summary('Current and others'),
+                        dash_table.DataTable(
+                            data=df_current_and_others.to_dict('records'),
+                            columns=[{"name": i, "id": i} for i in df_current_and_others.columns],
+                            editable=True,
+                            persistence=True,
+                        ),
+                    ]),
+
+                    html.Details([
+                        html.Summary('Quarterly'),
+                        dash_table.DataTable(
+                            data=df_quarterly.to_dict('records'),
+                            columns=[{"name": i, "id": i} for i in df_quarterly.columns],
+                            editable=True,
+                            persistence=True,
+                        ),
+                    ]),
+
+                    html.Details([
+                        html.Summary('Annual'),
+                        dash_table.DataTable(
+                            data=df_annual.to_dict('records'),
+                            columns=[{"name": i, "id": i} for i in df_annual.columns],
+                            editable=True,
+                            persistence=True,
+                        ),
+                    ]),
+
                     html.Hr(),
                 ]
             )
