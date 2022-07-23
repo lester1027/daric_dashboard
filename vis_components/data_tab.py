@@ -19,16 +19,12 @@ tab_data_layout = html.Div(
 
 @app.callback(
     Output('raw-data-div', 'children'),
-    [
-        Input('stock-data', 'data'),
-        Input('stock-data', 'modified_timestamp'),
-        Input('data-start', 'n_intervals'),
-    ],
+    Input('data-start', 'n_intervals'),
+    State('stock-data', 'data'),
 )
-def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
+def gen_data_table(data_start_n_intervals, stock_data):
 
-    if stock_data is not None and \
-    (stock_data_timestamp != -1 or data_start_n_intervals is not None):
+    if data_start_n_intervals is not None and stock_data is not None:
 
         div_children = []
 
@@ -46,6 +42,7 @@ def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
                     html.Details([
                         html.Summary('Current and others'),
                         dash_table.DataTable(
+                            id=f'{symbol}_df_current_and_others',
                             data=df_current_and_others.to_dict('records'),
                             columns=[{"name": i, "id": i} for i in df_current_and_others.columns],
                             editable=True,
@@ -57,6 +54,7 @@ def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
                     html.Details([
                         html.Summary('Quarterly'),
                         dash_table.DataTable(
+                            id=f'{symbol}_df_quarterly',
                             data=df_quarterly.to_dict('records'),
                             columns=[{"name": i, "id": i} for i in df_quarterly.columns],
                             editable=True,
@@ -68,6 +66,7 @@ def gen_data_table(stock_data, stock_data_timestamp, data_start_n_intervals):
                     html.Details([
                         html.Summary('Annual'),
                         dash_table.DataTable(
+                            id=f'{symbol}_df_annual',
                             data=df_annual.to_dict('records'),
                             columns=[{"name": i, "id": i} for i in df_annual.columns],
                             editable=True,
