@@ -42,7 +42,11 @@ def gen_data_table(data_start_n_intervals, stock_data):
                     html.Details([
                         html.Summary('Current and others'),
                         dash_table.DataTable(
-                            id=f'{symbol}_df_current_and_others',
+                            id={
+                                'type': 'raw-datatable',
+                                'symbol': symbol,
+                                'period': 'current_and_others',
+                            },
                             data=df_current_and_others.to_dict('records'),
                             columns=[{"name": i, "id": i} for i in df_current_and_others.columns],
                             editable=True,
@@ -54,7 +58,11 @@ def gen_data_table(data_start_n_intervals, stock_data):
                     html.Details([
                         html.Summary('Quarterly'),
                         dash_table.DataTable(
-                            id=f'{symbol}_df_quarterly',
+                            id={
+                                'type': 'raw-datatable',
+                                'symbol': symbol,
+                                'period': 'quarterly',
+                            },
                             data=df_quarterly.to_dict('records'),
                             columns=[{"name": i, "id": i} for i in df_quarterly.columns],
                             editable=True,
@@ -66,7 +74,11 @@ def gen_data_table(data_start_n_intervals, stock_data):
                     html.Details([
                         html.Summary('Annual'),
                         dash_table.DataTable(
-                            id=f'{symbol}_df_annual',
+                            id={
+                                'type': 'raw-datatable',
+                                'symbol': symbol,
+                                'period': 'annual',
+                            },
                             data=df_annual.to_dict('records'),
                             columns=[{"name": i, "id": i} for i in df_annual.columns],
                             editable=True,
@@ -83,3 +95,43 @@ def gen_data_table(data_start_n_intervals, stock_data):
         return dash.no_update
 
 
+@app.callback(
+    Output('stock-data', 'data'),
+    Input({'type': 'raw-datatable', 'symbol': ALL, 'period': ALL}, 'data_timestamp'),
+    [
+        State({'type': 'raw-datatable', 'symbol': ALL, 'period': ALL}, 'data'),
+        State('stock-data', 'data'),
+    ]
+)
+def table_update_stock_data(raw_datatable_data_timestamp, raw_datable_data, stock_data):
+    """
+    Once the raw datatable is edited, the edited stock data isused to replace
+    the corresponding raw data in the Stock class.
+    """
+    if ctx.triggered_id is not None:
+        stock_data = jsonpickle.decode(stock_data)
+
+        # the symbol and period triggering the callback
+        # target the table being edited
+        symbol = ctx.triggered_id['symbol']
+        period = ctx.triggered_id['period']
+
+        # look for the stock raw datatalbe index in the inputs list
+        for idx, input_dict in enumerate(ctx.inputs_list[0]):
+            if input_dict['id'] == ctx.triggered_id:
+                table_idx = idx
+            else:
+                continue
+
+        # acquire the corresponding table data
+        table_data = ctx.states_list[0][table_idx]['value']
+        df = pd.DataFrame(table_data)
+
+        # replace the original dataframe of raw data with the edited one
+        stock_data[symbol].raw_data[period] = df
+
+        # encode it again
+        stock_data = jsonpickle.encode(stock_data)
+        return stock_data
+    else:
+        return dash.no_update
