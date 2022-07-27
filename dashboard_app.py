@@ -30,6 +30,8 @@ app.layout = html.Div(
 def render_content(tab):
     if tab == 'tab-visualization':
         return visualization_tab.tab_visualization_layout
+    elif tab == 'tab-calculation':
+        return calculation_tab.tab_calculation_layout
     elif tab == 'tab-data':
         return data_tab.tab_data_layout
 
