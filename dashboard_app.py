@@ -1,5 +1,5 @@
 from dash import Dash, dcc, html
-from dash.dependencies import Input, Output, State
+from dash_extensions.enrich import Output, State, Input, html
 import pandas as pd
 
 from main_dash import app

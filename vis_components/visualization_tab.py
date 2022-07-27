@@ -1,6 +1,6 @@
 import dash
 from dash import Dash, dcc, html
-from dash.dependencies import Input, Output, State
+from dash_extensions.enrich import Output, State, Input, html
 import plotly.graph_objects as go
 import pandas as pd
 import jsonpickle

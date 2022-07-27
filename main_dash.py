@@ -1,4 +1,4 @@
-from dash import Dash
+from dash_extensions.enrich import Output, DashProxy, Input, MultiplexerTransform, html
 
-app = Dash(__name__)
+app = DashProxy(transforms=[MultiplexerTransform()])
 app.config.suppress_callback_exceptions = True
