@@ -5,14 +5,14 @@ import jsonpickle
 
 from main_dash import app
 
-tab_calculation_layout = html.Div(
+tab_metrics_layout = html.Div(
     children=[
-        dcc.Interval(id='calc-start', interval=1, max_intervals=1),
+        dcc.Interval(id='metrics-start', interval=1, max_intervals=1),
         dash_table.DataTable(id={'type': 'trial', 'detail': 'MSFT'}),
-        html.H2('Calculation'),
+        html.H2('Metrics'),
         html.Hr(),
         html.Div(
-            id='calc-div',
+            id='metrics-div',
         )
     ]
 )
