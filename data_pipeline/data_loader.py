@@ -128,6 +128,7 @@ class FMPDataLoader(DataLoader):
                 'total_cash_and_cash_equivalents': 'cashAndCashEquivalents',
                 'total_liabilities': 'totalLiabilities',
                 'total_assets': 'totalAssets',
+                'long_term_debt': 'longTermDebt',
                 'short_term_debt': 'shortTermDebt',
                 'total_stockholders_equity': 'totalStockholdersEquity',
                 'goodwill': 'goodwill',
