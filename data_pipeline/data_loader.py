@@ -162,6 +162,9 @@ class FMPDataLoader(DataLoader):
             'income_statements_growth': {
                 'net_income_growth': 'growthNetIncome',
             },
+            'shares_float': {
+                'outstanding_shares': 'outstandingShares',
+            }
         },
         'daily': {
             'historical_price_full': {
@@ -306,6 +309,12 @@ class FMPDataLoader(DataLoader):
                 data_key_in_fmp = self.data_keys[period]['income_statements_growth'][data_key]
 
                 data = self.endpoint_response['income_statements_growth'][0][data_key_in_fmp]
+
+            if data_key in self.data_keys[period]['shares_float']:
+
+                data_key_in_fmp = self.data_keys[period]['shares_float'][data_key]
+
+                data = self.endpoint_response['shares_float'][0][data_key_in_fmp]
 
         elif data_key in self.data_keys_by_period['daily']:
 
