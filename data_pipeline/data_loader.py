@@ -366,6 +366,8 @@ class FMPDataLoader(DataLoader):
             'daily': df_daily,
         }
 
+        self.raw_data['current_and_others'].loc[0, 'long_term_growth_rate'] = 0.3
+
         print(f'FMPDataLoader - Finish getting raw data for {symbol}')
 
     def get_stock_symbols(self):
