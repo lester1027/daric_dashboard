@@ -1,82 +1,40 @@
-from dis import dis
 import numpy as np
 
-def calc_r_d(debt_int_rate, tax_rate):
-    return debt_int_rate * (1 - tax_rate)
+def calculate_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
+                                        market_risk_premium, interest_expense, long_term_debt,
+                                        effective_tax_rate_ttm, long_term_growth_rate, fcf_ttm,
+                                        avg_gdp_growth, cce, total_liabilities, outstanding_shares,
+                                        safety_margin):
 
-def calc_r_e(r_f, beta, mkt_risk_prem):
-    return r_f + beta * mkt_risk_prem
+    interest_rate = interest_expense / long_term_debt
+    r_e = r_f + beta * market_risk_premium
+    r_d = interest_rate * (1 - effective_tax_rate_ttm)
+    mv_debt_equity = total_debt + market_capital
 
-def calc_wacc(mv_debt, mv_equity, r_d, r_e):
-
-    mv_debt_equity = mv_debt + mv_equity
-    debt_ratio = mv_debt / mv_debt_equity
-    equity_ratio = mv_equity / mv_debt_equity
-
-    wacc = debt_ratio * r_d + equity_ratio * r_e
-
-    return wacc
-
-def calc_ttm_FCF(df_FCF_annual, df_FCF_quar):
-    # if the most recent annual cashflow statement is the mose recent cashflow statement
-    if df_FCF_annual.loc[0, 'date'] == df_FCF_quar.loc[0, 'date']:
-        ttm_FCF = df_FCF_annual.loc[0, 'annual_free_cash_flow']
-    # if there are quarterly cashflow statements released after the latest annual cashflow statement
-    else:
-        # use the free cash flow in the most recent annual cashflow statement
-        # and add all those from more recently quarterly cashflow statement
-        # then minus those from corrseponding quarterly cashflow from the previous year
-        offset = df_FCF_quar.index[df_FCF_quar['date'] == df_FCF_annual.loc[0, 'date']].tolist()[0]
-        quarters_added = np.array(
-            df_FCF_quar.loc[0:offset-1, 'quarterly_free_cash_flow']).astype(np.float).sum()
-        quarters_dropped = np.array(
-            df_FCF_quar.loc[4:offset+4-1, 'quarterly_free_cash_flow']).astype(np.float).sum()
-        ttm_FCF = np.array(df_FCF_annual.loc[0, 'annual_free_cash_flow']).astype(
-            np.float) + quarters_added - quarters_dropped
-
-        return ttm_FCF
-
-def calc_projected_FCF(ttm_FCF, long_term_growth_rate):
-    projected_FCF = np.array(
-        [ttm_FCF * (1 + long_term_growth_rate)**n for n in range(11)]
+    wacc = (
+        r_d * (total_debt / mv_debt_equity)
+        + r_e * (market_capital / mv_debt_equity)
     )
-    return projected_FCF
 
-def calc_discount_factor(wacc):
-    discount_factor = np.array([1 / (1 + wacc)**n for n in range(11)])
-    return discount_factor
+    fcf_projected = np.array([fcf_ttm * (1 + long_term_growth_rate)**n for n in range(11)])
+    discount_fact = np.array([1 / (1 + wacc)**n for n in range(11)])
+    fcf_discounted = fcf_projected[1:] * discount_fact[1:]
+    fcf_discounted_pv = fcf_discounted.sum()
 
-def calc_discounted_FCF(projected_FCF, discount_factor):
-    discounted_FCF = projected_FCF[1:] * discount_factor[1:]
-    return discounted_FCF
+    perpetuity_value = (
+    (fcf_projected[-1] * (1 + avg_gdp_growth))
+    / (wacc - avg_gdp_growth)
+    )
 
-def calc_pv_discounted_FCF(discounted_FCF):
-    pv_discounted_FCF = discounted_FCF.sum()
-    return pv_discounted_FCF
+    terminal_value = perpetuity_value * discount_fact[-1]
 
-def calc_perpetuity_value(projected_FCF, wacc, gdp_growth_rate):
-    perpetuity_value = (projected_FCF[-1] * (1 + gdp_growth_rate)) / (wacc - gdp_growth_rate)
-    return perpetuity_value
+    intrinsic_value_per_share = (
+        fcf_discounted_pv
+        + terminal_value
+        + cce
+        - total_liabilities
+    ) / outstanding_shares
 
-def calc_terminal_Value(perpetuity_value, discount_factor):
-    terminal_value = perpetuity_value * discount_factor[-1]
-    return terminal_value
-
-def calculate_intrinsic_value_per_share(debt_int_rate, tax_rate, r_f, beta, mkt_risk_prem,
-                                        mv_debt, mv_equity, df_FCF_annual, df_FCF_quar,
-                                        long_term_growth_rate, gdp_growth_rate,
-                                        cce, debt, shares_outstanding):
-    r_d = calc_r_d(debt_int_rate, tax_rate)
-    r_e = calc_r_e(r_f, beta, mkt_risk_prem)
-    wacc = calc_wacc(mv_debt, mv_equity, r_d, r_e)
-    ttm_FCF = calc_ttm_FCF(df_FCF_annual, df_FCF_quar)
-    projected_FCF = calc_projected_FCF(ttm_FCF, long_term_growth_rate)
-    discount_factor = calc_discount_factor(wacc)
-    discounted_FCF = calc_discounted_FCF(projected_FCF, discount_factor)
-    pv_discounted_FCF = calc_pv_discounted_FCF(discounted_FCF)
-    perpetuity_value = calc_perpetuity_value(projected_FCF, wacc, gdp_growth_rate)
-    terminal_value = calc_terminal_Value(perpetuity_value, discount_factor)
-
-    intrinsic_value_per_share = (pv_discounted_FCF + terminal_value + cce - debt) / shares_outstanding
+    intrinsic_value_per_share = intrinsic_value_per_share * safety_margin
 
     return intrinsic_value_per_share
