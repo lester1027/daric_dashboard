@@ -1,6 +1,6 @@
 import pandas as pd
 from data_pipeline.data_source import FMPDataSource, WGBDataSource, WikiDataSource
-from utils.intrinsic_value import calculate_intrinsic_value_per_share
+from utils.intrinsic_value import calc_intrinsic_value_per_share
 
 class Stock:
 
@@ -82,7 +82,7 @@ class Stock:
 
         safety_margin = 0.3
 
-        intrinsic_value_per_share = calculate_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
+        intrinsic_value_per_share = calc_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
                                         market_risk_premium, interest_expense, long_term_debt,
                                         effective_tax_rate_ttm, long_term_growth_rate, fcf_ttm,
                                         avg_gdp_growth, cce, total_liabilities, outstanding_shares,

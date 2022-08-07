@@ -1,6 +1,6 @@
 import numpy as np
 
-def calculate_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
+def calc_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
                                         market_risk_premium, interest_expense, long_term_debt,
                                         effective_tax_rate_ttm, long_term_growth_rate, fcf_ttm,
                                         avg_gdp_growth, cce, total_liabilities, outstanding_shares,
