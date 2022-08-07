@@ -35,6 +35,6 @@ def calculate_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
         - total_liabilities
     ) / outstanding_shares
 
-    intrinsic_value_per_share = intrinsic_value_per_share * safety_margin
+    intrinsic_value_per_share = intrinsic_value_per_share * (1 - safety_margin)
 
     return intrinsic_value_per_share
