@@ -61,12 +61,6 @@ class FMPDataLoader(DataLoader):
             'name': 'ratios-ttm',
             'period': None,
         },
-        'income_statements_growth': {
-            'symbol_config': 'before',
-            'version': 'v3',
-            'name': 'income-statement-growth',
-            'period': None,
-        },
         'quarterly_cash_flow_statements': {
             'symbol_config': 'before',
             'version': 'v3',
@@ -158,9 +152,6 @@ class FMPDataLoader(DataLoader):
             },
             'company_ttm_ratios': {
                 'effective_tax_rate_ttm': 'effectiveTaxRateTTM',
-            },
-            'income_statements_growth': {
-                'net_income_growth': 'growthNetIncome',
             },
             'shares_float': {
                 'outstanding_shares': 'outstandingShares',
@@ -303,12 +294,6 @@ class FMPDataLoader(DataLoader):
                 data_key_in_fmp = self.data_keys[period]['company_ttm_ratios'][data_key]
 
                 data = self.endpoint_response['company_ttm_ratios'][0][data_key_in_fmp]
-
-            if data_key in self.data_keys[period]['income_statements_growth']:
-
-                data_key_in_fmp = self.data_keys[period]['income_statements_growth'][data_key]
-
-                data = self.endpoint_response['income_statements_growth'][0][data_key_in_fmp]
 
             if data_key in self.data_keys[period]['shares_float']:
 
