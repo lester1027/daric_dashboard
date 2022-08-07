@@ -1,5 +1,6 @@
 import pandas as pd
 from data_pipeline.data_source import FMPDataSource, WGBDataSource, WikiDataSource
+from utils.intrinsic_value import calculate_intrinsic_value_per_share
 
 class Stock:
 
@@ -37,8 +38,58 @@ class Stock:
         wiki_loader.get_raw_data(self.symbol)
         self.combine_raw_data(wiki_loader.raw_data)
 
-    def intrinsic_val_per_share(self):
-        pass
+    @property
+    def intrinsic_value_per_share(self):
+
+        df_current_and_others = self.raw_data['current_and_others']
+        df_quarterly = self.raw_data['quarterly']
+        df_annual = self.raw_data['annual']
+
+        market_capital = df_current_and_others.loc[0, 'market_capital']
+        total_debt = df_quarterly.loc[0, 'total_debt']
+        r_f = float(df_current_and_others.loc[0, 'risk_free_rate'].strip('%')) / 100
+        beta = df_current_and_others.loc[0, 'stock_beta']
+        market_risk_premium = df_current_and_others.loc[0, 'market_risk_premium'] / 100
+        interest_expense = df_annual.loc[0, 'interest_expense']
+        long_term_debt = df_annual.loc[0, 'long_term_debt']
+        effective_tax_rate_ttm = df_current_and_others.loc[0, 'effective_tax_rate_ttm']
+
+        avg_gdp_growth = df_current_and_others.loc[0, 'avg_gdp_growth'] / 100
+        long_term_growth_rate = df_current_and_others.loc[0, 'long_term_growth_rate']
+        cce = df_annual.loc[0, 'total_cash_and_cash_equivalents']
+        total_liabilities = df_annual.loc[0, 'total_liabilities']
+        outstanding_shares = df_current_and_others.loc[0, 'outstanding_shares']
+
+        # TTM free cash flow
+        # if the most recent annual cashflow statement is the most recent cashflow statement
+        if df_quarterly.loc[0, 'date'] == df_annual.loc[0, 'date']:
+            fcf_ttm = df_annual.loc[0, 'annual_free_cash_flow']
+        # if there are quarterly cashflow statements released after the latest annual cashflow statement
+        else:
+            # use the free cash flow in the most recent annual cashflow statement
+            # and add all those from more recently quarterly cashflow statement
+            # then minus those from corrseponding quarterly cashflow from the previous year
+            offset = df_quarterly.index[
+                df_quarterly['date'] == df_annual.loc[0, 'date']
+            ][0]
+            quarters_added = df_quarterly.loc[0 : offset-1, 'quarterly_free_cash_flow'].sum()
+            quarters_dropped = df_quarterly.loc[4 : 4+offset-1, 'quarterly_free_cash_flow'].sum()
+            fcf_ttm = (
+                df_annual.loc[0, 'annual_free_cash_flow']
+                + quarters_added
+                - quarters_dropped
+            )
+
+        safety_margin = 0.3
+
+        intrinsic_value_per_share = calculate_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
+                                        market_risk_premium, interest_expense, long_term_debt,
+                                        effective_tax_rate_ttm, long_term_growth_rate, fcf_ttm,
+                                        avg_gdp_growth, cce, total_liabilities, outstanding_shares,
+                                        safety_margin)
+
+        return intrinsic_value_per_share
+
     def ROCE(self):
         pass
     def FCFROCE(self):
