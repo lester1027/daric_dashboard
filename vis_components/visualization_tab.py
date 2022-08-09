@@ -107,6 +107,7 @@ def get_stock_data(refresh_data, stock_symbols):
             stock = Stock(stock_symbol)
             stock.get_raw_data()
             stock.fix_raw_data_format()
+            stock.raw_data_to_attribute()
             stock_data[stock_symbol] = stock
 
         stock_data = jsonpickle.encode(stock_data)

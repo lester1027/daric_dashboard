@@ -129,6 +129,7 @@ def table_update_stock_data(raw_datatable_data_timestamp, raw_datable_data, stoc
 
         # replace the original dataframe of raw data with the edited one
         stock_data[symbol].raw_data[period] = df
+        stock_data[symbol].raw_data_to_attributes()
 
         # encode it again
         stock_data = jsonpickle.encode(stock_data)

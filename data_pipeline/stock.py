@@ -49,6 +49,29 @@ class Stock:
         self.raw_data['current_and_others'].loc[0, 'avg_gdp_growth'] = \
             self.raw_data['current_and_others'].loc[0, 'avg_gdp_growth'] / 100
 
+    def raw_data_to_attributes(self):
+        # dataframe column to dict to instance attribute
+        data_dict = {}
+
+        for period, df_raw_data in self.raw_data.items():
+
+            cols = df_raw_data.columns.tolist()
+            if period in ['annual', 'quarterly']:
+
+                cols.remove('date')
+
+                for col in cols:
+                    data_dict[f'{col}'] = df_raw_data[['date', col]]
+
+            elif period == 'current_and_others':
+                for col in cols:
+                    data_dict[f'{col}'] = df_raw_data[col].values[0]
+
+            else:
+                continue
+
+        self.__dict__.update(data_dict)
+
     @property
     def intrinsic_value_per_share(self):
 
