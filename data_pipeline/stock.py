@@ -38,6 +38,17 @@ class Stock:
         wiki_loader.get_raw_data(self.symbol)
         self.combine_raw_data(wiki_loader.raw_data)
 
+    def fix_raw_data_format(self):
+        self.raw_data['current_and_others'].loc[0, 'risk_free_rate'] = float(
+            self.raw_data['current_and_others'].loc[0, 'risk_free_rate'].strip('%')
+        ) / 100
+
+        self.raw_data['current_and_others'].loc[0, 'market_risk_premium'] = \
+            self.raw_data['current_and_others'].loc[0, 'market_risk_premium'] / 100
+
+        self.raw_data['current_and_others'].loc[0, 'avg_gdp_growth'] = \
+            self.raw_data['current_and_others'].loc[0, 'avg_gdp_growth'] / 100
+
     @property
     def intrinsic_value_per_share(self):
 
@@ -47,14 +58,14 @@ class Stock:
 
         market_capital = df_current_and_others.loc[0, 'market_capital']
         total_debt = df_quarterly.loc[0, 'total_debt']
-        r_f = float(df_current_and_others.loc[0, 'risk_free_rate'].strip('%')) / 100
+        r_f = df_current_and_others.loc[0, 'risk_free_rate']
         beta = df_current_and_others.loc[0, 'stock_beta']
-        market_risk_premium = df_current_and_others.loc[0, 'market_risk_premium'] / 100
+        market_risk_premium = df_current_and_others.loc[0, 'market_risk_premium']
         interest_expense = df_annual.loc[0, 'interest_expense']
         long_term_debt = df_annual.loc[0, 'long_term_debt']
         effective_tax_rate_ttm = df_current_and_others.loc[0, 'effective_tax_rate_ttm']
 
-        avg_gdp_growth = df_current_and_others.loc[0, 'avg_gdp_growth'] / 100
+        avg_gdp_growth = df_current_and_others.loc[0, 'avg_gdp_growth']
         long_term_growth_rate = df_current_and_others.loc[0, 'long_term_growth_rate']
         cce = df_annual.loc[0, 'total_cash_and_cash_equivalents']
         total_liabilities = df_annual.loc[0, 'total_liabilities']
