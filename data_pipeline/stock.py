@@ -90,6 +90,19 @@ class Stock:
 
         return intrinsic_value_per_share
 
+    @property
+    def capital_employed(self):
+        # GSC key number 1
+        df_capital_employed = self.raw_data['annual'].copy()
+
+        df_capital_employed['capital_employed'] = df_capital_employed.apply(
+            lambda row: row['total_cash_and_cash_equivalents'] - row['short_term_debt'],
+            axis=1
+        )
+        df_capital_employed = df_capital_employed[['date', 'capital_employed']]
+        return df_capital_employed
+
+
     def ROCE(self):
         pass
     def FCFROCE(self):
