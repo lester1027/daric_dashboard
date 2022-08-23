@@ -1,6 +1,7 @@
 import pandas as pd
 from data_pipeline.data_source import FMPDataSource, WGBDataSource, WikiDataSource
 from utils.intrinsic_value import calc_intrinsic_value_per_share
+from utils import ratios
 
 class Stock:
 
@@ -143,25 +144,212 @@ class Stock:
         return df_capital_employed
 
 
+    @property
     def ROCE(self):
-        pass
+        # GSC ratio
+
+        df_ROCE = self.operating_income.merge(self.capital_employed, on=['date'])
+        df_ROCE['ROCE'] = df_ROCE.apply(
+            lambda row: ratios.calc_ROCE(row['operating_income'], row['capital_employed']),
+            axis=1,
+        )
+        df_ROCE = df_ROCE[['date', 'ROCE']]
+
+        return df_ROCE
+
+    @property
     def FCFROCE(self):
-        pass
+        # GSC ratio
+
+        df_FCFROCE = self.annual_free_cash_flow.merge(self.capital_employed, on=['date'])
+        df_FCFROCE['FCFROCE'] = df_FCFROCE.apply(
+            lambda row: ratios.calc_FCFROCE(row['annual_free_cash_flow'], row['capital_employed']),
+            axis=1,
+        )
+
+        df_FCFROCE = df_FCFROCE[['date', 'FCFROCE']]
+
+        return df_FCFROCE
+
+    @property
     def dOI_to_FDS(self):
-        pass
+
+        df_dOI_to_FDS = self.operating_income.merge(self.fully_diluted_shares, on=['date'])
+
+        def rolling_calc(series):
+            year_2_idx = series.index[0]
+            year_1_idx = series.index[1]
+
+            operating_income_1 = df_dOI_to_FDS.loc[year_1_idx, 'operating_income']
+            operating_income_2 = df_dOI_to_FDS.loc[year_2_idx, 'operating_income']
+
+            fully_diluted_shares_1 = df_dOI_to_FDS.loc[year_1_idx, 'fully_diluted_shares']
+            fully_diluted_shares_2 = df_dOI_to_FDS.loc[year_2_idx, 'fully_diluted_shares']
+
+            dOI_to_FDS = ratios.calc_dOI_to_FDS(
+                operating_income_1,
+                operating_income_2,
+                fully_diluted_shares_1,
+                fully_diluted_shares_2,
+            )
+            return dOI_to_FDS
+
+        # rolling feature
+        # pass a column to operate on the whole dataframe
+        df_dOI_to_FDS['inter'] = df_dOI_to_FDS['operating_income'].rolling(window=2).apply(rolling_calc, raw=False)
+        df_dOI_to_FDS['dOI_to_FDS'] = df_dOI_to_FDS['inter'].shift(-1)
+
+        df_dOI_to_FDS = df_dOI_to_FDS[['date', 'dOI_to_FDS']]
+
+        return df_dOI_to_FDS
+
+    @property
     def dFCF_to_FDS(self):
-        pass
+        # GSC ratio
+
+        df_dFCF_to_FDS = self.annual_free_cash_flow.merge(self.fully_diluted_shares, on=['date'])
+
+        def rolling_calc(series):
+            year_2_idx = series.index[0]
+            year_1_idx = series.index[1]
+
+            levered_FCF_1 = df_dFCF_to_FDS.loc[year_1_idx, 'annual_free_cash_flow']
+            levered_FCF_2 = df_dFCF_to_FDS.loc[year_2_idx, 'annual_free_cash_flow']
+
+            fully_diluted_shares_1 = df_dFCF_to_FDS.loc[year_1_idx, 'fully_diluted_shares']
+            fully_diluted_shares_2 = df_dFCF_to_FDS.loc[year_2_idx, 'fully_diluted_shares']
+
+            dFCF_to_FDS = ratios.calc_dFCF_to_FDS(
+                levered_FCF_1,
+                levered_FCF_2,
+                fully_diluted_shares_1,
+                fully_diluted_shares_2,
+            )
+            return dFCF_to_FDS
+
+        # rolling feature
+        df_dFCF_to_FDS['inter'] = df_dFCF_to_FDS['annual_free_cash_flow'].rolling(window=2).apply(rolling_calc, raw=False)
+        df_dFCF_to_FDS['dFCF_to_FDS'] = df_dFCF_to_FDS['inter'].shift(-1)
+
+        df_dFCF_to_FDS = df_dFCF_to_FDS[['date', 'dFCF_to_FDS']]
+
+        return df_dFCF_to_FDS
+
+    @property
     def dBV_to_FDS(self):
-        pass
+        # GSC ratio
+
+        df_dBV_to_FDS = self.total_stockholders_equity.merge(self.fully_diluted_shares, on=['date'])
+
+        def rolling_calc(series):
+            year_2_idx = series.index[0]
+            year_1_idx = series.index[1]
+
+            book_value_1 = df_dBV_to_FDS.loc[year_1_idx, 'total_stockholders_equity']
+            book_value_2 = df_dBV_to_FDS.loc[year_2_idx, 'total_stockholders_equity']
+
+            fully_diluted_shares_1 = df_dBV_to_FDS.loc[year_1_idx, 'fully_diluted_shares']
+            fully_diluted_shares_2 = df_dBV_to_FDS.loc[year_2_idx, 'fully_diluted_shares']
+
+            dBV_to_FDS = ratios.calc_dBV_to_FDS(
+                book_value_1,
+                book_value_2,
+                fully_diluted_shares_1,
+                fully_diluted_shares_2,
+            )
+            return dBV_to_FDS
+
+        # rolling feature
+        df_dBV_to_FDS['inter'] = df_dBV_to_FDS['total_stockholders_equity'].rolling(window=2).apply(rolling_calc, raw=False)
+        df_dBV_to_FDS['dBV_to_FDS'] = df_dBV_to_FDS['inter'].shift(-1)
+
+        df_dBV_to_FDS = df_dBV_to_FDS[['date', 'dBV_to_FDS']]
+
+        return df_dBV_to_FDS
+
+    @property
     def dTBV_to_FDS(self):
-        pass
+        # GSC ratio
+
+        df_dTBV_to_FDS = self.total_stockholders_equity.merge(self.goodwill, on=['date'])
+        df_dTBV_to_FDS = df_dTBV_to_FDS.merge(self.fully_diluted_shares, on=['date'])
+
+        def rolling_calc(series):
+            year_2_idx = series.index[0]
+            year_1_idx = series.index[1]
+
+            tangible_book_value_1 = df_dTBV_to_FDS.loc[year_1_idx, 'total_stockholders_equity']\
+                - df_dTBV_to_FDS.loc[year_1_idx, 'goodwill']
+            tangible_book_value_2 = df_dTBV_to_FDS.loc[year_2_idx, 'total_stockholders_equity']\
+                - df_dTBV_to_FDS.loc[year_2_idx, 'goodwill']
+
+            fully_diluted_shares_1 = df_dTBV_to_FDS.loc[year_1_idx, 'fully_diluted_shares']
+            fully_diluted_shares_2 = df_dTBV_to_FDS.loc[year_2_idx, 'fully_diluted_shares']
+
+            dTBV_to_FDS = ratios.calc_dTBV_to_FDS(
+                tangible_book_value_1,
+                tangible_book_value_2,
+                fully_diluted_shares_1,
+                fully_diluted_shares_2,
+            )
+            return dTBV_to_FDS
+
+        # rolling feature
+        df_dTBV_to_FDS['inter'] = df_dTBV_to_FDS['total_stockholders_equity'].rolling(window=2).apply(rolling_calc, raw=False)
+        df_dTBV_to_FDS['dTBV_to_FDS'] = df_dTBV_to_FDS['inter'].shift(-1)
+
+        df_dTBV_to_FDS = df_dTBV_to_FDS[['date', 'dTBV_to_FDS']]
+
+        return df_dTBV_to_FDS
+
+    @property
     def liab_to_equity(self):
-        pass
+        # GSC ratio
+        df_liab_to_equity = self.total_liabilities.merge(self.total_stockholders_equity, on=['date'])
+        df_liab_to_equity['liab_to_equity'] = df_liab_to_equity.apply(
+            lambda row: ratios.calc_liab_to_equity(row['total_liabilities'], row['total_stockholders_equity']),
+            axis=1,
+        )
+        df_liab_to_equity = df_liab_to_equity[['date', 'liab_to_equity']]
+
+        return df_liab_to_equity
+
+    @property
     def MCAP_to_FCF(self):
-        pass
+        # GSC ratio
+        MCAP_to_FCF = self.market_capital / self.fcf_ttm
+        return MCAP_to_FCF
+
+    @property
     def EV_to_OI(self):
-        pass
+        # GSC ratio
+
+        df_EV_to_OI = self.enterprise_value.merge(self.operating_income, on=['date'])
+        df_EV_to_OI['EV_to_OI'] = df_EV_to_OI.apply(
+            lambda row: ratios.calc_EV_to_OI(row['enterprise_value'], row['operating_income']),
+            axis=1,
+        )
+        df_EV_to_OI = df_EV_to_OI[['date', 'EV_to_OI']]
+
+        return df_EV_to_OI
+
+    @property
     def MCAP_to_BV(self):
-        pass
+        # GSC ratio
+        MCAP_to_BV = (
+            self.market_capital
+             / self.total_stockholders_equity.loc[0, 'total_stockholders_equity']
+        )
+        return MCAP_to_BV
+
+    @property
     def MCAP_to_TBV(self):
-        pass
+        # GSC ratio
+        df_TBV = self.total_stockholders_equity.merge(self.goodwill, on=['date'])
+        df_TBV['TBV'] = df_TBV.apply(
+            lambda row: row['total_stockholders_equity'] - row['goodwill'],
+            axis=1,
+        )
+        MCAP_to_TBV = self.market_capital / df_TBV.loc[0, 'TBV']
+
+        return MCAP_to_TBV
