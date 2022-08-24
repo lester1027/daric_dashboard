@@ -13,6 +13,10 @@ class Stock:
             'current_and_others': pd.DataFrame(),
             'daily': pd.DataFrame(),
         }
+        self.metrics = {
+            'annual': pd.DataFrame(),
+            'current_and_others': pd.DataFrame(),
+        }
 
     def combine_raw_data(self, new_raw_data):
         for period, dataframe in self.raw_data.items():
@@ -353,3 +357,22 @@ class Stock:
         MCAP_to_TBV = self.market_capital / df_TBV.loc[0, 'TBV']
 
         return MCAP_to_TBV
+
+    def metrics_to_dict(self):
+        metrics_current_and_others = ['intrinsic_value_per_share', 'MCAP_to_FCF', 'MCAP_to_BV', 'MCAP_to_TBV']
+        metrics_annual = [
+            'ROCE', 'FCFROCE', 'dOI_to_FDS', 'dFCF_to_FDS',
+            'dBV_to_FDS', 'dTBV_to_FDS', 'liab_to_equity', 'EV_to_OI',
+        ]
+
+        for metric_name in metrics_current_and_others:
+            metric = getattr(self, metric_name)
+            self.metrics['current_and_others'].loc[0, metric_name] = metric
+
+        for metric_name in metrics_annual:
+            metric = getattr(self, metric_name)
+
+            if self.metrics['annual'].empty:
+                self.metrics['annual'] = metric
+            else:
+                self.metrics['annual'] = self.metrics['annual'].merge(metric, how='inner')
