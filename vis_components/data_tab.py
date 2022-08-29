@@ -48,7 +48,10 @@ def gen_data_table(data_start_n_intervals, stock_data):
                                 'period': 'current_and_others',
                             },
                             data=df_current_and_others.to_dict('records'),
-                            columns=[{"name": i, "id": i} for i in df_current_and_others.columns],
+                            columns=[
+                                {"name": i, "id": i} if i in ['currency', 'country'] else {"name": i, "id": i, "type": 'numeric'}\
+                                for i in df_current_and_others.columns
+                            ],
                             editable=True,
                             persistence=True,
                             style_table={'overflowX': 'auto'},
@@ -126,10 +129,11 @@ def table_update_stock_data(raw_datatable_data_timestamp, raw_datable_data, stoc
         # acquire the corresponding table data
         table_data = ctx.states_list[0][table_idx]['value']
         df = pd.DataFrame(table_data)
-
         # replace the original dataframe of raw data with the edited one
         stock_data[symbol].raw_data[period] = df
+
         stock_data[symbol].raw_data_to_attributes()
+        stock_data[symbol].metrics_to_dict()
 
         # encode it again
         stock_data = jsonpickle.encode(stock_data)
