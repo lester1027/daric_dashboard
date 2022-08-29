@@ -44,9 +44,12 @@ class Stock:
         self.combine_raw_data(wiki_loader.raw_data)
 
     def fix_raw_data_format(self):
+
         self.raw_data['current_and_others'].loc[0, 'risk_free_rate'] = float(
             self.raw_data['current_and_others'].loc[0, 'risk_free_rate'].strip('%')
         ) / 100
+        self.raw_data['current_and_others']['risk_free_rate'] = \
+            self.raw_data['current_and_others']['risk_free_rate'].astype('float32')
 
         self.raw_data['current_and_others'].loc[0, 'market_risk_premium'] = \
             self.raw_data['current_and_others'].loc[0, 'market_risk_premium'] / 100
