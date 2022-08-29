@@ -134,7 +134,9 @@ def plot_price_graph(stock_data_timestamp, visualization_start, stock_data):
 
             X = stock.raw_data['daily']['date']
             y = stock.raw_data['daily']['historical_daily_close']
-            fig.add_trace(go.Scatter(x=X, y=y))
+            fig.add_trace(go.Scatter(x=X, y=y, name=symbol))
+
+        fig.update_layout(showlegend=True)
 
         return fig
     else:
