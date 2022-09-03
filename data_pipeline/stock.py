@@ -2,6 +2,7 @@ import pandas as pd
 from data_pipeline.data_source import FMPDataSource, WGBDataSource, WikiDataSource
 from utils.intrinsic_value import calc_intrinsic_value_per_share
 from utils import ratios
+from utils import metrics_benchmark as mb
 
 class Stock:
 
@@ -17,6 +18,8 @@ class Stock:
             'annual': pd.DataFrame(),
             'current_and_others': pd.DataFrame(),
         }
+
+        self.metrics_screening = {}
 
     def combine_raw_data(self, new_raw_data):
         for period, dataframe in self.raw_data.items():
@@ -386,3 +389,22 @@ class Stock:
         self.fix_raw_data_format()
         self.raw_data_to_attributes()
         self.metrics_to_dict()
+
+    def screen_metrics(self):
+
+        self.metrics_screening['intrinsic_value'] = mb.compare_instrinsic_value(
+            self.intrinsic_value_per_share,
+            self.current_share_price,
+        )
+
+        for metric in [
+            'ROCE', 'FCFROCE', 'dOI_to_FDS', 'dFCF_to_FDS', 'dBV_to_FDS', 'dTBV_to_FDS',
+            'liab_to_equity', 'MCAP_to_FCF', 'EV_to_OI', 'MCAP_to_BV', 'MCAP_to_TBV',
+        ]:
+            # metric with the type 'current_and_others'
+            if metric in ['MCAP_to_FCF', 'MCAP_to_BV', 'MCAP_to_TBV']:
+                self.metrics_screening[metric] = mb.comp[metric](getattr(self, metric))
+            # metric in time series
+            else:
+                value = getattr(self, metric).loc[0, metric]
+                self.metrics_screening[metric] = mb.comp[metric](value)
