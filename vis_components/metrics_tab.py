@@ -106,9 +106,10 @@ def table_update_stock_data(metrics_datatable_data_timestamp, metrics_datable_da
         table_data = ctx.states_list[0][table_idx]['value']
         df = pd.DataFrame(table_data)
 
-        # replace the original dataframe of raw data with the edited one
+        # replace the original dataframe of the metrics with the edited one
         stock_data[symbol].metrics[period] = df
         stock_data[symbol].metrics_to_dict()
+        stock_data[symbol].screen_metrics()
 
         # encode it again
         stock_data = jsonpickle.encode(stock_data)

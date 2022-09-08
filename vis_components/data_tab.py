@@ -134,6 +134,7 @@ def table_update_stock_data(raw_datatable_data_timestamp, raw_datable_data, stoc
 
         stock_data[symbol].raw_data_to_attributes()
         stock_data[symbol].metrics_to_dict()
+        stock_data[symbol].screen_metrics()
 
         # encode it again
         stock_data = jsonpickle.encode(stock_data)
