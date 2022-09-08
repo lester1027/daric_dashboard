@@ -56,7 +56,8 @@ tab_visualization_layout = html.Div([
     Input('app-start', 'n_intervals'),
 )
 def save_all_stock_symbols(app_start):
-    if app_start is None:
+    if app_start == 0:
+
         # get the stock symbols from FMP
         fmp_source = FMPDataSource()
         fmp_loader = fmp_source.create_loader()
@@ -77,11 +78,14 @@ def save_all_stock_symbols(app_start):
 # load all stock symbols from the Store component to the dropdown options
 @app.callback(
     Output('stock-symbol-dropdown', 'options'),
-    Input('app-start', 'n_intervals'),
+    Input('stock-symbol-all', 'data'),
     State('stock-symbol-all', 'data'),
 )
-def load_stock_options(app_start, all_stock_symbols):
-    return all_stock_symbols
+def load_stock_options(all_stock_symbols_1, all_stock_symbols_2):
+    if len(all_stock_symbols_1) != 0:
+        return all_stock_symbols_2
+    else:
+        return dash.no_update
 
 
 # store the stock names chosen
