@@ -381,7 +381,7 @@ class Stock:
             if self.metrics['annual'].empty:
                 self.metrics['annual'] = metric
             else:
-                self.metrics['annual'] = self.metrics['annual'].merge(metric, how='inner')
+                self.metrics['annual'] = self.metrics['annual'].merge(metric, on=['date'])
 
 
     def get_raw_data_metrics(self):
