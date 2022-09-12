@@ -175,7 +175,7 @@ def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
                     failed[metric] = stock.metrics_screening[metric]
 
             # only the first set of bars show legend
-            showlegend_flag = (len(fig.data) + 1 <= len(stock_data))
+            showlegend_flag = (len(fig.data) + 1 <= 2)
 
             fig.add_trace(
                 go.Bar(
@@ -190,7 +190,7 @@ def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
                 )
             )
 
-            showlegend_flag = (len(fig.data) + 1<= len(stock_data))
+            showlegend_flag = (len(fig.data) + 1 <= 2)
 
             fig.add_trace(
                 go.Bar(
