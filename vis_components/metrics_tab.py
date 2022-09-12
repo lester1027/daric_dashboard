@@ -47,7 +47,7 @@ def gen_metrics_table(metrics_start_n_intervals, stock_data):
                                 'period': 'current_and_others',
                             },
                             data=df_current_and_others.to_dict('records'),
-                            columns=[{"name": i, "id": i} for i in df_current_and_others.columns],
+                            columns=[{"name": i, "id": i, "type": 'numeric'} for i in df_current_and_others.columns],
                             editable=True,
                             persistence=True,
                             style_table={'overflowX': 'auto'},
@@ -62,7 +62,10 @@ def gen_metrics_table(metrics_start_n_intervals, stock_data):
                                 'period': 'annual',
                             },
                             data=df_annual.to_dict('records'),
-                            columns=[{"name": i, "id": i} for i in df_annual.columns],
+                            columns=[
+                                {"name": i, "id": i} if i == 'date' else {"name": i, "id": i, "type": 'numeric'}\
+                                for i in df_annual.columns
+                            ],
                             editable=True,
                             persistence=True,
                             style_table={'overflowX': 'auto'},

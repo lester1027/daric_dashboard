@@ -67,7 +67,10 @@ def gen_data_table(data_start_n_intervals, stock_data):
                                 'period': 'quarterly',
                             },
                             data=df_quarterly.to_dict('records'),
-                            columns=[{"name": i, "id": i} for i in df_quarterly.columns],
+                            columns=[
+                                {"name": i, "id": i} if i == 'date' else {"name": i, "id": i, "type": 'numeric'}\
+                                for i in df_quarterly.columns
+                            ],
                             editable=True,
                             persistence=True,
                             style_table={'overflowX': 'auto'},
@@ -83,7 +86,10 @@ def gen_data_table(data_start_n_intervals, stock_data):
                                 'period': 'annual',
                             },
                             data=df_annual.to_dict('records'),
-                            columns=[{"name": i, "id": i} for i in df_annual.columns],
+                            columns=[
+                                {"name": i, "id": i} if i == 'date' else {"name": i, "id": i, "type": 'numeric'}\
+                                for i in df_annual.columns
+                            ],
                             editable=True,
                             persistence=True,
                             style_table={'overflowX': 'auto'},
