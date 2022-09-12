@@ -10,6 +10,7 @@ jsonpickle_pandas.register_handlers()
 from data_pipeline.data_source import FMPDataSource, WGBDataSource, WikiDataSource
 from data_pipeline.stock import Stock
 from main_dash import app
+from utils import graph_utils
 
 tab_visualization_layout = html.Div([
     dcc.Interval(id='visualization-start', interval=1, max_intervals=1),
@@ -43,6 +44,10 @@ tab_visualization_layout = html.Div([
     html.Hr(),
     # ====================================================
     html.H2('Metrics Evaluation'),
+    dcc.Graph(
+        id='metrics-eval-graph',
+        figure={},
+    ),
     html.Hr(),
     # ====================================================
     html.H2('Metrics Trend'),
@@ -147,3 +152,62 @@ def plot_price_graph(stock_data_timestamp, visualization_start, stock_data):
     else:
         return dash.no_update
 
+@app.callback(
+    Output('metrics-eval-graph', 'figure'),
+    [Input('stock-data', 'modified_timestamp'),
+    Input('visualization-start', 'n_intervals')],
+    State('stock-data', 'data'),
+)
+def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
+    if visualization_start is not None:
+        stock_data = jsonpickle.decode(stock_data)
+
+        fig = go.Figure()
+
+        for symbol, stock in stock_data.items():
+
+            passed = {}
+            failed = {}
+            for metric, details in stock.metrics_screening.items():
+                if details[0] == True:
+                    passed[metric] = stock.metrics_screening[metric]
+                else:
+                    failed[metric] = stock.metrics_screening[metric]
+
+            # only the first set of bars show legend
+            showlegend_flag = (len(fig.data) + 1 <= len(stock_data))
+
+            fig.add_trace(
+                go.Bar(
+                    x=[stock.symbol],
+                    y=[len(passed)],
+                    legendgroup="passed",
+                    name='Passed',
+                    hovertext=graph_utils.screening_to_str(passed),
+                    hoverlabel={'font': {'color': 'white'}},
+                    marker_color='rgb(114, 158, 206)',
+                    showlegend=showlegend_flag,
+                )
+            )
+
+            showlegend_flag = (len(fig.data) + 1<= len(stock_data))
+
+            fig.add_trace(
+                go.Bar(
+                    x=[stock.symbol],
+                    y=[len(failed)],
+                    legendgroup="failed",
+                    name='Failed',
+                    hovertext=graph_utils.screening_to_str(failed),
+                    hoverlabel={'font': {'color': 'white'}},
+                    marker_color='rgb(237,102,93)',
+                    showlegend=showlegend_flag,
+                )
+            )
+
+        fig.update_layout(barmode='stack')
+
+        return fig
+
+    else:
+        return dash.no_update
