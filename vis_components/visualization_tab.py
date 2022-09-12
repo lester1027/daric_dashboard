@@ -159,7 +159,7 @@ def plot_price_graph(stock_data_timestamp, visualization_start, stock_data):
     State('stock-data', 'data'),
 )
 def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
-    if visualization_start is not None:
+    if visualization_start != 0:
         stock_data = jsonpickle.decode(stock_data)
 
         fig = go.Figure()
