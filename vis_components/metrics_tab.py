@@ -79,7 +79,7 @@ def gen_metrics_table(metrics_start_n_intervals, stock_data):
 
 @app.callback(
     Output('stock-data', 'data'),
-    Input({'type': 'matrics-datatable', 'symbol': ALL, 'period': ALL}, 'data_timestamp'),
+    Input({'type': 'metrics-datatable', 'symbol': ALL, 'period': ALL}, 'data_timestamp'),
     [
         State({'type': 'metrics-datatable', 'symbol': ALL, 'period': ALL}, 'data'),
         State('stock-data', 'data'),
@@ -87,8 +87,8 @@ def gen_metrics_table(metrics_start_n_intervals, stock_data):
 )
 def table_update_stock_data(metrics_datatable_data_timestamp, metrics_datable_data, stock_data):
     """
-    Once the raw datatable is edited, the edited stock data isused to replace
-    the corresponding raw data in the Stock class.
+    Once the metrics datatable is edited, the edited stock data isused to replace
+    the corresponding metrics in the Stock class.
     """
     if ctx.triggered_id is not None:
         stock_data = jsonpickle.decode(stock_data)
