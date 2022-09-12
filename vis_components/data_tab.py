@@ -139,6 +139,11 @@ def table_update_stock_data(raw_datatable_data_timestamp, raw_datable_data, stoc
         stock_data[symbol].raw_data[period] = df
 
         stock_data[symbol].raw_data_to_attributes()
+        # reset the metric dicts
+        stock_data[symbol].metrics = {
+            'annual': pd.DataFrame(),
+            'current_and_others': pd.DataFrame(),
+        }
         stock_data[symbol].metrics_to_dict()
         stock_data[symbol].screen_metrics()
 
