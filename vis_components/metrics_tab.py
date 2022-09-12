@@ -111,7 +111,6 @@ def table_update_stock_data(metrics_datatable_data_timestamp, metrics_datable_da
 
         # replace the original dataframe of the metrics with the edited one
         stock_data[symbol].metrics[period] = df
-        stock_data[symbol].metrics_to_dict()
         stock_data[symbol].screen_metrics()
 
         # encode it again

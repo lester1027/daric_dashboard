@@ -393,7 +393,7 @@ class Stock:
     def screen_metrics(self):
 
         self.metrics_screening['intrinsic_value'] = mb.compare_instrinsic_value(
-            self.intrinsic_value_per_share,
+            self.metrics['current_and_others']['intrinsic_value_per_share'][0],
             self.current_share_price,
         )
 
@@ -403,8 +403,9 @@ class Stock:
         ]:
             # metric with the type 'current_and_others'
             if metric in ['MCAP_to_FCF', 'MCAP_to_BV', 'MCAP_to_TBV']:
-                self.metrics_screening[metric] = mb.comp[metric](getattr(self, metric))
+                value = self.metrics['current_and_others'][metric][0]
             # metric in time series
             else:
-                value = getattr(self, metric).loc[0, metric]
-                self.metrics_screening[metric] = mb.comp[metric](value)
+                value = self.metrics['annual'].loc[0, metric]
+
+            self.metrics_screening[metric] = mb.comp[metric](value)
