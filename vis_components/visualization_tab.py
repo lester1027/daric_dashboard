@@ -244,6 +244,7 @@ def plot_metrics_trend(stock_data_timestamp, visualization_start, stock_data):
                         y=stock.metrics['annual'][annual_metric],
                         mode='lines+markers',
                         name=stock.symbol,
+                        showlegend=True,
                     )
                 )
             fig.update_layout(title_text=annual_metric, title_x=0.5)
