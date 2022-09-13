@@ -51,6 +51,9 @@ tab_visualization_layout = html.Div([
     html.Hr(),
     # ====================================================
     html.H2('Metrics Trend'),
+    html.Div(
+        id='metrics-trend-graph-div',
+    ),
     html.Hr(),
 ])
 
@@ -211,3 +214,44 @@ def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
 
     else:
         return dash.no_update
+
+@app.callback(
+    Output('metrics-trend-graph-div', 'children'),
+    [Input('stock-data', 'modified_timestamp'),
+    Input('visualization-start', 'n_intervals')],
+    State('stock-data', 'data'),
+)
+def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
+    if visualization_start != 0:
+
+        div_children = []
+
+        stock_data = jsonpickle.decode(stock_data)
+
+        # pick the first stock to extract the annual metric columns
+        first_stock = list(stock_data.values())[0]
+        annual_metrics = first_stock.metrics['annual'].columns.tolist()
+        annual_metrics.remove('date')
+
+        for annual_metric in annual_metrics:
+            fig = go.Figure()
+
+            for symbol, stock in stock_data.items():
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=stock.metrics['annual']['date'],
+                        y=stock.metrics['annual'][annual_metric],
+                        mode='lines+markers',
+                        name=stock.symbol,
+                    )
+                )
+            fig.update_layout(title_text=annual_metric, title_x=0.5)
+
+            graph = dcc.Graph(figure=fig)
+            div_children.append(graph)
+
+        return div_children
+
+    else:
+        dash.no_update
