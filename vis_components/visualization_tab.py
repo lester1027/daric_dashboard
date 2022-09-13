@@ -221,7 +221,7 @@ def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
     Input('visualization-start', 'n_intervals')],
     State('stock-data', 'data'),
 )
-def plot_metrics_eval(stock_data_timestamp, visualization_start, stock_data):
+def plot_metrics_trend(stock_data_timestamp, visualization_start, stock_data):
     if visualization_start != 0:
 
         div_children = []
