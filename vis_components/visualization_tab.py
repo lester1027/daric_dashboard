@@ -64,7 +64,8 @@ tab_visualization_layout = html.Div([
     Input('app-start', 'n_intervals'),
 )
 def save_all_stock_symbols(app_start):
-    if app_start == 0:
+
+    if app_start == 1:
 
         # get the stock symbols from FMP
         fmp_source = FMPDataSource()
