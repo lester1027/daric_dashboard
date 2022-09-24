@@ -75,6 +75,11 @@ def save_all_stock_symbols(app_start):
         # format the stock symbols for the dropdown options
         df_stock_symbols = pd.DataFrame(stock_symbols)
         df_stock_symbols['symbol_name'] = df_stock_symbols.apply(lambda x: x['symbol'] + ', ' + x['name'], axis=1)
+        df_stock_symbols = df_stock_symbols.loc[
+            (df_stock_symbols['exchangeShortName'] == 'AMEX')
+            |(df_stock_symbols['exchangeShortName'] == 'NASDAQ')
+            |(df_stock_symbols['exchangeShortName'] == 'NYSE')
+        ]
         stock_options = dict(
             sorted(
                 zip(df_stock_symbols['symbol'], df_stock_symbols['symbol_name'])
