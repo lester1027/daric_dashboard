@@ -22,6 +22,8 @@ app.layout = html.Div(
     ]
 )
 
+server = app.server
+
 # choose different tabs
 @app.callback(
     Output('tabs-content', 'children'),
@@ -40,4 +42,4 @@ def render_content(tab):
 if __name__ == '__main__':
     from gevent import monkey
     monkey.patch_all()
-    app.run_server(debug=True)
+    app.run_server(debug=False)
