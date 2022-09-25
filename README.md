@@ -1,127 +1,37 @@
-# ticker_dashboard
+# Daric Dashboard
 
 Developing an Interactive Dashboard for Value Investment with Python, Dash and Pandas
-https://medium.com/@lesterso1027/developing-an-interactive-dashboard-for-value-investment-with-python-dash-and-pandas-version-2-2c2616542b5c
+https://medium.com/@lesterso1027/developing-an-interactive-dashboard-for-value-investment-with-python-dash-and-pandas-version-3-d39582a710d7
 
-## How to use
-I. Enter the account as ‘Lester’ and the password as ‘wildcard’.
+<br>
 
-II. Choose the tickers in the dropdown list (can filter the results with typing).
+## How to Use
+1. Select the stocks you are interested in from the drop-down list.
+2. Click the ‘Refresh Data’ button.
 
-III. Select the date range and update the price (this step is not necessary for doing fundamental analysis).
+3. Wait for the data update.
 
-IV. Enter the safety margin in terms of percentage (if a safety margin is not needed, leave the value as default).
+4. Click the ‘Data’ tab and edit the ‘long_term_growth_rate’. Press ‘Enter’ to confirm the change. \
+(The API used by Daric does not support a valid growth rate yet. The growth estimates in Yahoo Finance may be a proper number to input. E.g.: https://finance.yahoo.com/quote/AAPL/analysis?p=AAPL)
 
-V. Click the ‘Fundamental analysis’ button to show the financial figures and the analysis results of the selected stocks. The column ‘Comparison’ shows whether the stock is over-valued or under-valued.
+5. Go back to the ‘Visualization’ tab to look at the evaluation of the metric. \
+The metrics in blue pass the screening and the ones in red fail.\
+The line charts show the trends of the metrics.
 
-VI. If there are financial figures shown as ‘9999999999’, this means the required figure is not accessible from the data source and manual input is required.
+6. The data tables in the ‘Metrics’ and the ‘Data’ tabs are editable for matching customization needs. \
+(Editing the entries in the ‘Data’ tab will modify the stock raw data and the metrics will be recalculated. \
+Editing the entries in the ‘Metrics’ tab will only modify the stock metrics while leaving the raw data unchanged.)
 
-VII. The table is fully editable. In case there is an error like the above-mentioned one or the user wants to make some adjustment of the financial figures, columns showing financial figures 1 to 14 should be edited.
+<br>
 
-VIII. If the stock to be analysed cannot be found in the drop-down list, users can click the ‘Add an empty row’ button and input all the figures manually.
+## How to Build
+1. Clone this repository to the local machine
 
+2. Create a new conda environment with ```conda create -n daric python=3.9```
 
-## Requirements
+3. Activate the conda environment with ```conda activate daric```
 
-alabaster==0.7.12
+4. In the directory of the cloned repository, install the dependencies with ```pip install -r requirements.txt```
 
-astroid==2.3.2
-
-attrs==19.3.0
-
-autopep8==1.4.4
-
-Babel==2.7.0
-
-backcall==0.1.0
-
-bleach==3.1.0
-
-certifi==2019.9.11
-
-cffi==1.13.2
-
-chardet==3.0.4
-
-click==6.7
-
-cloudpickle==1.2.2
-
-colorama==0.4.1
-
-cryptography==2.8
-
-Cython==0.28.2
-
-dash==1.7.0
-
-dash-auth==1.3.2
-
-dash-core-components==1.6.0
-
-dash-html-components==1.0.2
-
-dash-renderer==1.2.2
-
-dash-table==4.5.1
-
-decorator==4.3.0
-
-defusedxml==0.6.0
-
-docutils==0.15.2
-
-Flask==1.1.1
-
-Flask-Compress==1.4.0
-
-Flask-SeaSurf==0.2.2
-
-future==0.18.2
-
-gunicorn==20.0.4
-
-idna==2.8
-
-itsdangerous==1.1.0
-
-Jinja2==2.11.1
-
-lazy-object-proxy==1.4.3
-
-lxml==4.5.0
-
-MarkupSafe==1.1.1
-
-numpy==1.18.1
-
-pandas==1.0.0
-
-plotly==4.5.0
-
-pycodestyle==2.5.0
-
-pycparser==2.19
-
-python-dateutil==2.8.1
-
-pytz==2019.3
-
-requests==2.22.0
-
-retrying==1.3.3
-
-six==1.12.0
-
-typed-ast==1.4.1
-
-ua-parser==0.8.0
-
-urllib3==1.25.8
-
-webencodings==0.5.1
-
-Werkzeug==0.16.1
-
-wrapt==1.11.2
+5. Run ```python dashboard_app.py```
 
