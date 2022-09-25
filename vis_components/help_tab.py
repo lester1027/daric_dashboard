@@ -20,7 +20,7 @@ tab_help_layout = dcc.Markdown(
     4. Click the 'Data' tab and edit the 'long_term_growth_rate'. Press 'Enter' to confirm the change. \n
         (The API used by Daric does not support a valid growth rate yet.) \n
     5. Go back to the 'Visualization' tab to look at the metrics evaluation. \n
-        The metrics in blue pass the screening and the the ones in red fail. \n
+        The metrics in blue pass the screening and the ones in red fail. \n
         The line charts show the trends of the metrics.
     6. The data tables in the 'Metrics' and the 'Data' tabs are editable for matching customization needs. \n
         (Editing the entries in the 'Data' tab will modify the stock raw data and the metrics will be recalculated. \n
