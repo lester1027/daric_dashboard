@@ -38,6 +38,7 @@ tab_visualization_layout = html.Div([
     #     id='date-range',
     # ),
     html.Br(),
+    html.Br(),
     html.Button('Refresh data', id='refresh-data', n_clicks=0),
     html.Hr(),
     # ====================================================
