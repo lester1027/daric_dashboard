@@ -12,7 +12,7 @@ app.layout = html.Div(
         dcc.Store(id='stock-symbol-all', storage_type='local'),
         dcc.Store(id='stock-symbol-selected', storage_type='local'),
         dcc.Store(id='stock-data', storage_type='local'),
-        dcc.Tabs(id='tabs-bar', value='tab-visualization', persistence=True, children=[
+        dcc.Tabs(id='tabs-bar', value='tab-help', persistence=True, children=[
             dcc.Tab(label='Help', value='tab-help'),
             dcc.Tab(label='Visualization', value='tab-visualization'),
             dcc.Tab(label='Metrics', value='tab-metrics'),
