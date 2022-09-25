@@ -33,7 +33,7 @@ tab_visualization_layout = html.Div([
         max=1.0,
         step=0.1,
     ),
-    html.P('Date range'),
+    # html.P('Date range'),
     # dcc.DatePickerRange(
     #     id='date-range',
     # ),
