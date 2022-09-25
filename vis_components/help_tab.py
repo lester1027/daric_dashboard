@@ -18,7 +18,9 @@ tab_help_layout = dcc.Markdown(
     2. Click the 'Refresh Data' button. \n
     3. Wait for the data update. \n
     4. Click the 'Data' tab and edit the 'long_term_growth_rate'. Press 'Enter' to confirm the change. \n
-        (The API used by Daric does not support a valid growth rate yet.) \n
+        (The API used by Daric does not support a valid growth rate yet. \n
+        The growth estimates in Yahoo Finance may be a proper number to input. \n
+        E.g.: https://finance.yahoo.com/quote/AAPL/analysis?p=AAPL)) \n
     5. Go back to the 'Visualization' tab to look at the metrics evaluation. \n
         The metrics in blue pass the screening and the ones in red fail. \n
         The line charts show the trends of the metrics.
