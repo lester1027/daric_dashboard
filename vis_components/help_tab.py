@@ -29,7 +29,7 @@ tab_help_layout = dcc.Markdown(
     ## Metrics
     | Name | Symbol | Formula | Benchmark | Remark |
     |------|--------|---------|-----------|--------|
-    |Intrinsic Value per Share|intrinsic_value_per_share|$$\\frac{Present\ Value + Terminal\ Value + Cash - Debt}{Shares\ Outstanding}$$|> stock price|The core metric of a stock. It indicates the true value of the stock.|
+    |Discounted Intrinsic Value per Share|dis_intrinsic_value|$$\\frac{Present\ Value + Terminal\ Value + Cash - Debt}{Shares\ Outstanding} \\times (1 - safety\ margin)$$|> stock price|The core metric of a stock. It indicates the true value of the stock.|
     |Market Capitalization to Levered Free Cash Flow|MCAP_to_FCF|$$\\frac{Market\ Capitalization}{Levered\ Free\ Cash\ Flow}$$|<= 8|It weighs the price of the common stock against what cash accounting says comes out after interest and taxes.|
     |Market Capitalization to Book Value|MCAP_to_BV|$$\\frac{Market\ Capitalization}{Book\ Value}=\\frac{Market\ Capitalization}{Stockholders'\ Equity}$$|<= 3|The price relative to the value of the company dead.|
     |Market Capitalization to Tangible Book Value|MCAP_to_TBV|$$\\frac{Market\ Capitalization}{Tangible\ Book\ Value}=\\frac{Market\ Capitalization}{Book\ Value-Inangible\ Assets}$$|<= 3|The price relative to the value of the company dead. This is stricter than MCAP_to_BV.|

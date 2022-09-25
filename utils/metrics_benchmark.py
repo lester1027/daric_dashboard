@@ -14,9 +14,9 @@ def compare_with_benchmark(stock_value, symb, benchmark):
 
     return flag, stock_value, benchmark, diff
 
-def compare_instrinsic_value(intrinsic_value_per_share, current_share_price):
+def compare_instrinsic_value(intrinsic_value_per_share, current_share_price, safety_margin):
 
-    stock_value = intrinsic_value_per_share
+    stock_value = intrinsic_value_per_share * (1 - safety_margin)
     benchmark = current_share_price
     symb = '>'
 

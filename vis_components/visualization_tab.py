@@ -27,6 +27,11 @@ tab_visualization_layout = html.Div([
     html.P('Satefy margin'),
     dcc.Input(
         id='saftey-margin',
+        value=0.3,
+        type='number',
+        min=0.0,
+        max=1.0,
+        step=0.1,
     ),
     html.P('Date range'),
     # dcc.DatePickerRange(
@@ -115,8 +120,9 @@ def save_stock_name(stock_symbol):
     Output('stock-data', 'data'),
     Input('refresh-data', 'n_clicks'),
     State('stock-symbol-dropdown', 'value'),
+    State('saftey-margin', 'value'),
 )
-def get_stock_data(refresh_data, stock_symbols):
+def get_stock_data(refresh_data, stock_symbols, safety_margin):
     if refresh_data >= 1:
 
         stock_data = {}
@@ -124,6 +130,7 @@ def get_stock_data(refresh_data, stock_symbols):
         for stock_symbol in stock_symbols:
             stock = Stock(stock_symbol)
             stock.get_raw_data_metrics()
+            stock.safety_margin = safety_margin
             stock.screen_metrics()
             stock_data[stock_symbol] = stock
 

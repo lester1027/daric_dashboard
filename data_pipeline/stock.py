@@ -131,13 +131,11 @@ class Stock:
         total_liabilities = df_annual.loc[0, 'total_liabilities']
         outstanding_shares = df_current_and_others.loc[0, 'outstanding_shares']
 
-        safety_margin = 0.3
-
-        intrinsic_value_per_share = calc_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
-                                        market_risk_premium, interest_expense, long_term_debt,
-                                        effective_tax_rate_ttm, long_term_growth_rate, self.fcf_ttm,
-                                        avg_gdp_growth, cce, total_liabilities, outstanding_shares,
-                                        safety_margin)
+        intrinsic_value_per_share = calc_intrinsic_value_per_share(
+            market_capital, total_debt, r_f, beta,
+            market_risk_premium, interest_expense, long_term_debt,
+            effective_tax_rate_ttm, long_term_growth_rate, self.fcf_ttm,
+            avg_gdp_growth, cce, total_liabilities, outstanding_shares)
 
         return intrinsic_value_per_share
 
@@ -392,9 +390,10 @@ class Stock:
 
     def screen_metrics(self):
 
-        self.metrics_screening['intrinsic_value'] = mb.compare_instrinsic_value(
+        self.metrics_screening['dis_intrinsic_value'] = mb.compare_instrinsic_value(
             self.metrics['current_and_others']['intrinsic_value_per_share'][0],
             self.current_share_price,
+            self.safety_margin,
         )
 
         for metric in [

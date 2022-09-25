@@ -1,10 +1,9 @@
 import numpy as np
 
 def calc_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
-                                        market_risk_premium, interest_expense, long_term_debt,
-                                        effective_tax_rate_ttm, long_term_growth_rate, fcf_ttm,
-                                        avg_gdp_growth, cce, total_liabilities, outstanding_shares,
-                                        safety_margin):
+        market_risk_premium, interest_expense, long_term_debt,
+        effective_tax_rate_ttm, long_term_growth_rate, fcf_ttm,
+        avg_gdp_growth, cce, total_liabilities, outstanding_shares):
 
     interest_rate = interest_expense / long_term_debt
     r_e = r_f + beta * market_risk_premium
@@ -34,7 +33,5 @@ def calc_intrinsic_value_per_share(market_capital, total_debt, r_f, beta,
         + cce
         - total_liabilities
     ) / outstanding_shares
-
-    intrinsic_value_per_share = intrinsic_value_per_share * (1 - safety_margin)
 
     return intrinsic_value_per_share
