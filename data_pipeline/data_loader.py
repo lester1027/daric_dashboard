@@ -406,9 +406,11 @@ class WikiDataLoader(DataLoader):
         self.source_url = source_url
 
     def get_response(self):
-        df_gdp = pd.read_html('https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate')[1]
-        df_gdp = df_gdp[['Country', 'Avg.']]
-        df_gdp = df_gdp.rename(columns={'Country': 'country', 'Avg.': 'avg_gdp_growth'})
+        df_gdp = pd.read_html(self.source_url)[0]
+        df_gdp = df_gdp[['Country', 'Real GDP growthrate (%)[1]']]
+        df_gdp = df_gdp.loc[df_gdp['Real GDP growthrate (%)[1]'] != 'No data', :]
+        df_gdp['Real GDP growthrate (%)[1]'] = df_gdp['Real GDP growthrate (%)[1]'].astype('float32')
+        df_gdp = df_gdp.rename(columns={'Country': 'country', 'Real GDP growthrate (%)[1]': 'avg_gdp_growth'})
 
         return df_gdp
 
