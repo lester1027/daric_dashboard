@@ -7,7 +7,7 @@ import jsonpickle
 import jsonpickle.ext.pandas as jsonpickle_pandas
 jsonpickle_pandas.register_handlers()
 
-from data_pipeline.data_source import FMPDataSource, WGBDataSource, WikiDataSource
+from data_pipeline.data_source import FMPDataSource, WGBDataSource, IMFDataSource
 from data_pipeline.stock import Stock
 from main_dash import app
 from utils import graph_utils

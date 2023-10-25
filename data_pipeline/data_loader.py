@@ -3,6 +3,7 @@ from collections import defaultdict
 from functools import reduce
 from functools import cached_property
 import grequests
+import requests
 
 import pandas as pd
 
@@ -400,17 +401,22 @@ class WGBDataLoader(DataLoader):
 
         print(f'WGBDataLoader - Finish getting raw data for {symbol}')
 
-class WikiDataLoader(DataLoader):
+class IMFDataLoader(DataLoader):
 
-    def __init__(self, source_url):
+    def __init__(self, source_url, country_label_url):
         self.source_url = source_url
+        self.country_label_url = country_label_url
 
     def get_response(self):
-        df_gdp = pd.read_html(self.source_url)[0]
-        df_gdp = df_gdp[['Country', 'Real GDP growthrate (%)[1]']]
-        df_gdp = df_gdp.loc[df_gdp['Real GDP growthrate (%)[1]'] != 'No data', :]
-        df_gdp['Real GDP growthrate (%)[1]'] = df_gdp['Real GDP growthrate (%)[1]'].astype('float32')
-        df_gdp = df_gdp.rename(columns={'Country': 'country', 'Real GDP growthrate (%)[1]': 'avg_gdp_growth'})
+        response = requests.get(self.source_url)
+        df_gdp = pd.DataFrame(response.json()['values']['NGDP_RPCH']).T
+        df_gdp['2023'] = df_gdp['2023'].astype('float32')
+        df_gdp = df_gdp.rename(columns={'2023': 'avg_gdp_growth'})
+
+        response = requests.get(self.country_label_url)
+        df_label = pd.DataFrame(response.json()['countries']).T
+        df_label = df_label.rename(columns={'label': 'country'})
+        df_gdp = df_gdp.merge(df_label, left_index=True, right_index=True)
 
         return df_gdp
 
@@ -423,4 +429,4 @@ class WikiDataLoader(DataLoader):
             'current_and_others': df_current_and_others,
         }
 
-        print(f'WikiDataLoader - Finish getting raw data for {symbol}')
+        print(f'IMFDataLoader - Finish getting raw data for {symbol}')

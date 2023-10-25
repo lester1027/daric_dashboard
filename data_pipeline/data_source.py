@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from data_pipeline.data_loader import FMPDataLoader, WGBDataLoader, WikiDataLoader
+from data_pipeline.data_loader import FMPDataLoader, WGBDataLoader, IMFDataLoader
 
 class DataSource(ABC):
 
@@ -23,9 +23,10 @@ class WGBDataSource(DataSource):
     def create_loader(self):
         return WGBDataLoader(self.source_url)
 
-class WikiDataSource(DataSource):
+class IMFDataSource(DataSource):
 
-    source_url = 'https://en.wikipedia.org/wiki/List_of_countries_by_real_GDP_growth_rate'
+    source_url = 'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH?periods=2022,2023'
+    country_label_url = 'https://www.imf.org/external/datamapper/api/v1/countries'
 
     def create_loader(self):
-        return WikiDataLoader(self.source_url)
+        return IMFDataLoader(self.source_url, self.country_label_url)

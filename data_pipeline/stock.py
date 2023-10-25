@@ -1,5 +1,5 @@
 import pandas as pd
-from data_pipeline.data_source import FMPDataSource, WGBDataSource, WikiDataSource
+from data_pipeline.data_source import FMPDataSource, WGBDataSource, IMFDataSource
 from utils.intrinsic_value import calc_intrinsic_value_per_share
 from utils import ratios
 from utils import metrics_benchmark as mb
@@ -27,7 +27,7 @@ class Stock:
                 self.raw_data[period] = new_raw_data.get(period)
             else:
                 if new_raw_data.get(period) is not None:
-                    self.raw_data[period] = self.raw_data[period].merge(new_raw_data[period], how='inner')
+                    self.raw_data[period] = self.raw_data[period].merge(new_raw_data[period], on='country', how='inner')
 
     def get_raw_data(self):
 
@@ -41,10 +41,10 @@ class Stock:
         wgb_loader.get_raw_data(self.symbol)
         self.combine_raw_data(wgb_loader.raw_data)
 
-        wiki_source = WikiDataSource()
-        wiki_loader = wiki_source.create_loader()
-        wiki_loader.get_raw_data(self.symbol)
-        self.combine_raw_data(wiki_loader.raw_data)
+        imf_source = IMFDataSource()
+        imf_loader = imf_source.create_loader()
+        imf_loader.get_raw_data(self.symbol)
+        self.combine_raw_data(imf_loader.raw_data)
 
     def fix_raw_data_format(self):
 
