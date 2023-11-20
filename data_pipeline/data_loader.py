@@ -6,6 +6,7 @@ import grequests
 import requests
 
 import pandas as pd
+from bs4 import BeautifulSoup
 
 def exception_handler(request, exception):
     print(request, exception)
@@ -383,9 +384,18 @@ class WGBDataLoader(DataLoader):
         self.source_url = source_url
 
     def get_response(self):
-        df_bonds = pd.read_html(self.source_url, header=1)[1]
-        df_bonds = df_bonds[['Country', 'Yield']]
-        df_bonds = df_bonds.rename(columns={'Country': 'country', 'Yield': 'risk_free_rate'})
+        page = requests.get(self.source_url)
+        soup = BeautifulSoup(page.text, 'html.parser')
+
+        all_colspan = soup.find_all(attrs={'colspan':True})
+        for colspan in all_colspan:
+            colspan.attrs['colspan'] = colspan.attrs['colspan'].replace('%', '')
+
+        table = soup.find_all('table')[0]
+
+        df_bonds = pd.read_html(str(table), header=1)[0]
+        df_bonds = df_bonds[['Country', 'Yield▴']]
+        df_bonds = df_bonds.rename(columns={'Country': 'country', 'Yield▴': 'risk_free_rate'})
         df_bonds['country'] = df_bonds['country'].apply(lambda x: x.replace('(*)', ''))
 
         return df_bonds
